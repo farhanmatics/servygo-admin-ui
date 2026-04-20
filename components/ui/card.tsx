@@ -37,14 +37,21 @@ export function MetricCard({
   value: string;
 }) {
   return (
-    <article className="panel-muted p-3">
-      <div className="flex items-center justify-between gap-2">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-stone">
-          {label}
-        </div>
+    <article className="panel-muted relative p-4">
+      {/* Badge: Top-right corner */}
+      <div className="absolute -right-2 -top-2">
         <StatusBadge tone={tone}>{delta}</StatusBadge>
       </div>
-      <div className="mt-3 text-[1.6rem] font-semibold leading-none text-ink">{value}</div>
+
+      {/* Label: Left-aligned, with right padding to avoid badge overlap */}
+      <div className="pr-16 text-[11px] font-semibold uppercase tracking-[0.14em] text-stone">
+        {label}
+      </div>
+
+      {/* Value */}
+      <div className="mt-2 text-[1.6rem] font-semibold leading-none text-ink">
+        {value}
+      </div>
     </article>
   );
 }

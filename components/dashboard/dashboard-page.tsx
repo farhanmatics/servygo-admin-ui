@@ -85,7 +85,7 @@ export function DashboardPage() {
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1.7fr)_minmax(320px,0.9fr)]">
         <Card>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div className="min-w-0">
+            <div className="min-w-0 max-w-xl">
               <div className="eyebrow">What needs action now</div>
               <h3 className="mt-2 text-[1.45rem] leading-none">{variant.highlight}</h3>
               <p className="mt-2 max-w-2xl text-[13px] leading-6 text-stone">
@@ -94,7 +94,7 @@ export function DashboardPage() {
               </p>
             </div>
 
-            <div className="grid min-w-[240px] gap-2 sm:grid-cols-2">
+            <div className="grid min-w-[340px] gap-4 sm:grid-cols-2">
               {dashboardMetrics.map((metric) => (
                 <MetricCard
                   delta={metric.delta}
