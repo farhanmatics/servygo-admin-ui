@@ -53,18 +53,6 @@ export function TopBar() {
             >
               6 alerts
             </Link>
-            <select
-              aria-label="Role preview"
-              className="rounded-2xl border border-line bg-panel px-3 py-2 text-[12px] font-medium text-ink shadow-sm transition hover:border-line-strong"
-              onChange={(event) => setRole(event.target.value as AdminRole)}
-              value={role}
-            >
-              {(Object.keys(adminRoleLabels) as AdminRole[]).map((roleOption) => (
-                <option key={roleOption} value={roleOption}>
-                  {adminRoleLabels[roleOption]}
-                </option>
-              ))}
-            </select>
             <div className="hidden xl:block">
               <ProfileMenu />
             </div>
