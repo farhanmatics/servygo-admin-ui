@@ -24,12 +24,16 @@ export function Sidebar() {
           </p>
         </div>
 
-        <div className="panel-muted hidden bg-white/7 p-3 text-cream/82 md:block">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-cream/55">
+        <div className="hidden md:block rounded-2xl border border-line bg-panel p-3 shadow-sm">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-stone">
             Active role
           </div>
-          <div className="mt-2 text-sm font-medium">{adminRoleLabels[role]}</div>
-          <div className="mt-1 text-xs text-cream/65">{roleTerritories[role]}</div>
+          <div className="mt-2 text-sm font-semibold text-ink">
+            {adminRoleLabels[role]}
+          </div>
+          <div className="mt-1 text-xs text-stone">
+            {roleTerritories[role]}
+          </div>
         </div>
 
         <nav className="flex-1 space-y-4 overflow-y-auto pr-1">
