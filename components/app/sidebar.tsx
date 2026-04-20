@@ -4,35 +4,40 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMockAuth } from "@/components/providers";
 import { adminRoleLabels, navGroups, roleTerritories } from "@/lib/mock/admin-shell";
-
+import Image from "next/image";
 export function Sidebar() {
   const pathname = usePathname();
   const { isReadOnly, role } = useMockAuth();
   return (
     <aside className="admin-sidebar px-4 py-5 md:px-3">
       <div className="flex h-full flex-col gap-5">
-        <div className="rounded-2xl border border-white/10 bg-white/6 px-4 py-4">
-          <div className="eyebrow text-[rgb(245_240_228_/_0.7)]">ServyGo</div>
-          <div className="mt-2 flex items-baseline justify-between gap-3">
-            <h1 className="font-serif text-[1.55rem] text-cream">Admin</h1>
-            <span className="rounded-full border border-white/10 bg-white/8 px-2.5 py-1 text-[11px] font-medium text-cream/80">
-              Mock
-            </span>
+        {/* Mobile: stacked minimal version */}
+        <div className="hidden md:flex items-center gap-4 rounded-2xl border border-line bg-panel px-4 py-3 shadow-sm">
+          {/* Logo */}
+          <div className="shrink-0 overflow-hidden rounded-lg bg-white/5 p-1">
+            <Image
+              src="/logos/sm/1.png"
+              alt="ServyGo Logo"
+              width={56}
+              height={56}
+              className="h-14 w-14 object-contain"
+            />
           </div>
-          <p className="mt-2 text-xs leading-5 text-cream/70">
-            Dense operational workspace tuned for quick review, approval, and intervention.
-          </p>
-        </div>
 
-        <div className="hidden md:block rounded-2xl border border-line bg-panel p-3 shadow-sm">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-stone">
-            Active role
-          </div>
-          <div className="mt-2 text-sm font-semibold text-ink">
-            {adminRoleLabels[role]}
-          </div>
-          <div className="mt-1 text-xs text-stone">
-            {roleTerritories[role]}
+          {/* Divider */}
+          <div className="h-8 w-px bg-line" />
+
+          {/* Role Info */}
+          <div className="min-w-0">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-stone">
+              Active role
+            </div>
+            <div className="mt-1 truncate text-sm font-semibold text-ink">
+              {adminRoleLabels[role]}
+            </div>
+            <div className="truncate text-xs text-stone">
+              {roleTerritories[role]}
+            </div>
           </div>
         </div>
 
