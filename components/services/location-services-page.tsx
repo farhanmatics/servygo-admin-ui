@@ -2,16 +2,27 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useMockAuth } from "@/components/providers";
 import { Button } from "@/components/ui/button";
 import { Card, MetricCard } from "@/components/ui/card";
 import { DataGrid } from "@/components/ui/data-grid";
+import { EmptyState } from "@/components/ui/feedback";
 import { ActiveFilters, FilterBar, SavedViewMenu } from "@/components/ui/filter-bar";
 import { Field, Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { countPackages, countProviderGaps, getServiceLocations, locationServiceMetrics, localStatusTone, type LocalStatus, type ServiceLocation } from "@/lib/mock/services";
+import {
+  countPackages,
+  countProviderGaps,
+  getServiceLocations,
+  locationServiceMetrics,
+  localStatusTone,
+  type LocalStatus,
+  type ServiceLocation,
+} from "@/lib/mock/services";
 
 export function LocationServicesPage() {
+  const { isReadOnly } = useMockAuth();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<LocalStatus | "all">("all");
   const locations = getServiceLocations();
@@ -63,7 +74,7 @@ export function LocationServicesPage() {
       header: "Packages",
       key: "packages",
       render: (location: ServiceLocation) => (
-        <span className="text-[13px] text-body">{countPackages(location)} configured packages</span>
+        <span className="text-[13px] text-body">{countPackages(location)} configured</span>
       ),
     },
     {
@@ -89,10 +100,19 @@ export function LocationServicesPage() {
         actions={
           <>
             <Button size="md" variant="secondary">Export matrix</Button>
-            <Button size="md">Add location</Button>
+            {isReadOnly ? (
+              <Button disabled size="md" title="Read-only access">
+                Add location
+              </Button>
+            ) : (
+              <Link href="/services/locations/new">
+                <Button size="md">Add location</Button>
+              </Link>
+            )}
           </>
         }
-        description="Start with a location, then enable services, subcategories, packages, and local providers. A package is not operationally live until provider coverage is ready in that location."
+        breadcrumbs={[{ label: "Services" }]}
+        description="Start with a location, then enable services, subcategories, packages, and local providers. A package becomes customer-bookable only once provider coverage is ready in that location."
         eyebrow="Location-first setup"
         title="Location Service Matrix"
       />
@@ -108,7 +128,11 @@ export function LocationServicesPage() {
           <div className="border-b border-line px-4 py-3">
             <FilterBar actions={<SavedViewMenu label="Saved view: Provider gaps" />}>
               <Field label="Search location">
-                <Input onChange={(event) => setSearch(event.target.value)} placeholder="City, province, territory, lead" value={search} />
+                <Input
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="City, province, territory, lead"
+                  value={search}
+                />
               </Field>
               <div className="rounded-xl border border-line bg-panel p-2">
                 <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-stone">Location status</div>
@@ -133,16 +157,31 @@ export function LocationServicesPage() {
               </div>
             </FilterBar>
             <div className="mt-3 px-4 pb-4">
-              <ActiveFilters items={[status === "all" ? "All location statuses" : status, search.trim() ? `Search: ${search.trim()}` : "No search query", "Location -> service -> package -> provider"]} />
+              <ActiveFilters
+                items={[
+                  status === "all" ? "All location statuses" : status,
+                  search.trim() ? `Search: ${search.trim()}` : "No search query",
+                  "Location -> service -> package -> provider",
+                ]}
+              />
             </div>
           </div>
-          <DataGrid columns={columns} rows={filtered} />
+          {filtered.length === 0 ? (
+            <div className="p-4">
+              <EmptyState
+                description="Try clearing the search or status filter to see configured markets."
+                title="No locations match these filters"
+              />
+            </div>
+          ) : (
+            <DataGrid columns={columns} rows={filtered} />
+          )}
         </Card>
 
         <Card>
           <div className="eyebrow">Setup flow</div>
           <h3 className="mt-2 text-[1.15rem] leading-none">Correct operating order</h3>
-          <div className="mt-4 space-y-3">
+          <ol className="mt-4 space-y-3">
             {[
               "1. Pick the city or territory first.",
               "2. Enable services for that location.",
@@ -150,11 +189,11 @@ export function LocationServicesPage() {
               "4. Assign local providers to each package.",
               "5. Publish only when coverage and verification are ready.",
             ].map((item) => (
-              <div key={item} className="rounded-2xl border border-line bg-panel-muted px-3 py-3">
+              <li className="rounded-2xl border border-line bg-panel-muted px-3 py-3" key={item}>
                 <p className="text-dense text-body">{item}</p>
-              </div>
+              </li>
             ))}
-          </div>
+          </ol>
         </Card>
       </section>
     </div>

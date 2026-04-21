@@ -129,7 +129,7 @@ These land first. Everything else depends on them.
 | 0.10 | Mock delay/error/permission simulator | `[ ]` | useful for pending/error states |
 | 0.11 | Route-level `loading.tsx`, `error.tsx`, `not-found.tsx` patterns | `[x]` | `app/{loading,error,not-found}.tsx` |
 | 0.12 | Reduced motion, high contrast, and keyboard-first review | `[~]` | reduced-motion + skip link + focus states landed; full audit pending |
-| 0.13 | Breadcrumb + page header system | `[x]` | `components/ui/page-header.tsx` |
+| 0.13 | Breadcrumb + page header system | `[x]` | `components/ui/page-header.tsx` + `components/ui/breadcrumbs.tsx` |
 | 0.14 | Filter-state URL conventions | `[ ]` | tables and reports should deep-link cleanly |
 
 ### UI Primitives (`components/ui/`)
@@ -263,12 +263,12 @@ This is different from a generic service catalog. A package should not be consid
 
 | # | Page | Route | Status | Notes |
 |---|------|-------|:------:|-------|
-| 5.1 | Locations service matrix | `/services` | `[x]` | location-first matrix in `app/(portal)/services/page.tsx` + `lib/mock/services.ts` |
-| 5.2 | Location service setup | `/services/locations/[locationId]` | `[x]` | choose location, view enabled services, coverage health, provider gaps |
-| 5.3 | Location service detail | `/services/locations/[locationId]/services/[serviceId]` | `[x]` | manage subcategories under a service for that location |
-| 5.4 | Subcategory package builder | `/services/locations/[locationId]/services/[serviceId]/subcategories/[subcategoryId]` | `[x]` | create/edit packages, add-ons, pricing mode for that location |
-| 5.5 | Package provider assignment | `/services/locations/[locationId]/packages/[packageId]/providers` | `[x]` | assign local providers, show capacity, verification status, SLA readiness |
-| 5.6 | Location package pricing and forms | `/services/locations/[locationId]/packages/[packageId]/configure` | `[x]` | package-specific pricing, intake fields, bid/fixed mode, customer-visible settings |
+| 5.1 | Locations service matrix | `/services` | `[x]` | location-first matrix with breadcrumbs, RBAC-aware CTAs, empty states |
+| 5.2 | Location service setup | `/services/locations/[locationId]` | `[x]` | services table with read-only guard and empty state |
+| 5.3 | Location service detail | `/services/locations/[locationId]/services/[serviceId]` | `[x]` | subcategory tabs/filter chips, read-only guard, breadcrumbs |
+| 5.4 | Subcategory package builder | `/services/locations/[locationId]/services/[serviceId]/subcategories/[subcategoryId]` | `[x]` | packages with readiness, read-only guard, empty state |
+| 5.5 | Package provider assignment | `/services/locations/[locationId]/packages/[packageId]/providers` | `[x]` | breadcrumbs, RBAC-aware assign action, empty state |
+| 5.6 | Location package pricing and forms | `/services/locations/[locationId]/packages/[packageId]/configure` | `[x]` | publish gated by blockers, read-only aware inputs/buttons |
 
 UI considerations:
 
