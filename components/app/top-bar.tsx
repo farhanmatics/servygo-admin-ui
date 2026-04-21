@@ -1,12 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useMockAuth, useToast } from "@/components/providers";
-import { adminRoleLabels, type AdminRole } from "@/lib/mock/admin-shell";
+import { useToast } from "@/components/providers";
 import { ProfileMenu } from "./profile-menu";
 
 export function TopBar() {
-  const { role, setRole } = useMockAuth();
   const { pushToast } = useToast();
 
   return (

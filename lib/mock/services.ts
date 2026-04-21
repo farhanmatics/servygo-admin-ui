@@ -1,67 +1,61 @@
 import type { AdminRole } from "./admin-shell";
 
-export type ServiceState = "live" | "paused" | "limited";
+export type LocalStatus = "live" | "pilot" | "paused" | "blocked";
 export type PricingMode = "fixed" | "bidding" | "hybrid";
-export type CoverageState = "live" | "pilot" | "paused";
-export type FormFieldType = "text" | "textarea" | "select" | "checkbox" | "date" | "number" | "file";
+export type ProviderReadiness = "ready" | "limited" | "blocked";
+export type FieldType = "text" | "textarea" | "select" | "checkbox" | "date" | "number" | "file";
 
-export type ServiceCoverageRow = {
-  cities: string;
-  note: string;
-  province: string;
-  state: CoverageState;
+export type LocalProvider = {
+  capacity: string;
+  id: string;
+  name: string;
+  readiness: ProviderReadiness;
+  sla: string;
+  verification: string;
 };
 
-export type ServiceAddon = {
+export type PackageConfig = {
+  addOns: string[];
+  assignedProviders: LocalProvider[];
+  fields: { id: string; label: string; note: string; required: boolean; type: FieldType }[];
+  id: string;
   name: string;
-  note: string;
   price: string;
-};
-
-export type ServiceFormField = {
-  id: string;
-  label: string;
-  note: string;
-  required: boolean;
-  type: FormFieldType;
-};
-
-export type ServicePricingRule = {
-  id: string;
-  label: string;
-  note: string;
-  value: string;
-};
-
-export type ServiceRecord = {
-  biddingEnabled: boolean;
-  createdAt: string;
-  description: string;
-  formTemplateSummary: string;
-  id: string;
-  liveRegions: number;
-  locationMode: string;
-  name: string;
-  package: string;
   pricingMode: PricingMode;
-  segment: string;
-  state: ServiceState;
-  summary: string;
+  publishBlockers: string[];
+  status: LocalStatus;
 };
 
-export type ServiceProfile = ServiceRecord & {
-  addOns: ServiceAddon[];
-  auditNotes: string[];
-  coverage: ServiceCoverageRow[];
-  formFields: ServiceFormField[];
-  pricingRules: ServicePricingRule[];
-  rolloutNote: string;
+export type LocalSubcategory = {
+  id: string;
+  name: string;
+  packages: PackageConfig[];
+  status: LocalStatus;
 };
 
-export const serviceStateTone: Record<ServiceState, "success" | "warning" | "info"> = {
+export type LocalService = {
+  id: string;
+  name: string;
+  note: string;
+  status: LocalStatus;
+  subcategories: LocalSubcategory[];
+};
+
+export type ServiceLocation = {
+  city: string;
+  id: string;
+  marketLead: string;
+  province: string;
+  services: LocalService[];
+  status: LocalStatus;
+  territory: string;
+};
+
+export const localStatusTone: Record<LocalStatus, "success" | "warning" | "danger" | "info"> = {
   live: "success",
+  pilot: "info",
   paused: "warning",
-  limited: "info",
+  blocked: "danger",
 };
 
 export const pricingModeTone: Record<PricingMode, "success" | "warning" | "info"> = {
@@ -70,250 +64,404 @@ export const pricingModeTone: Record<PricingMode, "success" | "warning" | "info"
   hybrid: "info",
 };
 
-export const coverageStateTone: Record<CoverageState, "success" | "warning" | "info"> = {
-  live: "success",
-  pilot: "info",
-  paused: "warning",
+export const providerReadinessTone: Record<ProviderReadiness, "success" | "warning" | "danger"> = {
+  ready: "success",
+  limited: "warning",
+  blocked: "danger",
 };
 
-export const serviceListAllowedRoles: AdminRole[] = [
+export const serviceAllowedRoles: AdminRole[] = [
   "super-admin",
   "operations-admin",
   "read-only-admin",
 ];
 
-export const serviceProfiles: ServiceProfile[] = [
+export const serviceLocations: ServiceLocation[] = [
   {
-    id: "SRV-100",
-    name: "Home Cleaning",
-    segment: "Residential",
-    package: "Recurring core",
-    state: "live",
-    pricingMode: "fixed",
-    biddingEnabled: false,
-    liveRegions: 6,
-    locationMode: "City and postal-code coverage",
-    formTemplateSummary: "7 request fields, 2 optional uploads",
-    createdAt: "2025-06-18",
-    description:
-      "Core recurring home-cleaning product with fixed packages, upsell add-ons, and territory-aware availability.",
-    summary: "High-volume service with stable pricing and standardized intake fields.",
-    rolloutNote: "Primary benchmark service for operational expansion and SLA quality.",
-    auditNotes: [
-      "Fixed-price residential services should keep request fields lightweight to protect conversion and dispatch speed.",
-      "Coverage changes must be visible before turning a city live.",
-    ],
-    pricingRules: [
+    id: "loc-saskatoon",
+    city: "Saskatoon",
+    province: "SK",
+    territory: "Central Saskatchewan",
+    marketLead: "Sofia Tremblay",
+    status: "live",
+    services: [
       {
-        id: "PR-100-A",
-        label: "Base package",
-        value: "CAD 109 / 2h",
-        note: "Entry package for 1-bedroom residential homes.",
+        id: "svc-cleaning",
+        name: "Cleaning",
+        status: "live",
+        note: "Core residential and commercial cleaning packages are active with reliable provider coverage.",
+        subcategories: [
+          {
+            id: "sub-home-cleaning",
+            name: "Home cleaning",
+            status: "live",
+            packages: [
+              {
+                id: "pkg-sask-home-standard",
+                name: "Standard home clean",
+                status: "live",
+                price: "CAD 109 / 2h",
+                pricingMode: "fixed",
+                addOns: ["Inside oven", "Inside fridge", "Pet-hair treatment"],
+                publishBlockers: [],
+                assignedProviders: [
+                  {
+                    id: "prov-prairie-shine",
+                    name: "Prairie Shine Co.",
+                    readiness: "limited",
+                    capacity: "18 jobs / week",
+                    verification: "Insurance expires in 3 days",
+                    sla: "92% on-time",
+                  },
+                  {
+                    id: "prov-mint-home",
+                    name: "Mint Home Care",
+                    readiness: "ready",
+                    capacity: "26 jobs / week",
+                    verification: "Verified until 2027-01-12",
+                    sla: "97% on-time",
+                  },
+                ],
+                fields: [
+                  { id: "bedrooms", label: "Bedrooms", type: "select", required: true, note: "Drives package tier." },
+                  { id: "bathrooms", label: "Bathrooms", type: "select", required: true, note: "Used for dispatch estimate." },
+                  { id: "access", label: "Entry instructions", type: "textarea", required: false, note: "Visible after booking confirmation." },
+                ],
+              },
+              {
+                id: "pkg-sask-home-deep",
+                name: "Deep clean",
+                status: "pilot",
+                price: "CAD 189 / 3h",
+                pricingMode: "fixed",
+                addOns: ["Appliance interior", "Baseboard detail"],
+                publishBlockers: ["Needs one additional verified provider for weekend coverage"],
+                assignedProviders: [
+                  {
+                    id: "prov-mint-home",
+                    name: "Mint Home Care",
+                    readiness: "ready",
+                    capacity: "8 jobs / week",
+                    verification: "Verified until 2027-01-12",
+                    sla: "97% on-time",
+                  },
+                ],
+                fields: [
+                  { id: "condition", label: "Current home condition", type: "select", required: true, note: "Sets expectations for provider." },
+                  { id: "photos", label: "Reference photos", type: "file", required: false, note: "Optional evidence for heavy jobs." },
+                ],
+              },
+            ],
+          },
+          {
+            id: "sub-office-cleaning",
+            name: "Office cleaning",
+            status: "live",
+            packages: [
+              {
+                id: "pkg-sask-office-recurring",
+                name: "Recurring office clean",
+                status: "live",
+                price: "CAD 240 / visit",
+                pricingMode: "fixed",
+                addOns: ["Consumables restock", "Floor polish"],
+                publishBlockers: [],
+                assignedProviders: [
+                  {
+                    id: "prov-evergreen",
+                    name: "Evergreen Facility Group",
+                    readiness: "ready",
+                    capacity: "14 visits / week",
+                    verification: "Commercial docs verified",
+                    sla: "98% on-time",
+                  },
+                ],
+                fields: [
+                  { id: "sqft", label: "Approximate square footage", type: "number", required: true, note: "Used for pricing tier." },
+                  { id: "frequency", label: "Cleaning frequency", type: "select", required: true, note: "Weekly, biweekly, monthly." },
+                ],
+              },
+            ],
+          },
+        ],
       },
       {
-        id: "PR-100-B",
-        label: "Size multiplier",
-        value: "+ CAD 28 / bedroom",
-        note: "Applied after the first bedroom tier.",
+        id: "svc-moving",
+        name: "Moving Support",
+        status: "paused",
+        note: "Paused locally after repeated reassignment pressure and SLA risk.",
+        subcategories: [
+          {
+            id: "sub-labour-only",
+            name: "Labour-only moves",
+            status: "blocked",
+            packages: [
+              {
+                id: "pkg-sask-moving-labour",
+                name: "Two-person moving crew",
+                status: "blocked",
+                price: "CAD 159 / 2h",
+                pricingMode: "hybrid",
+                addOns: ["Furniture disassembly", "Packing supplies"],
+                publishBlockers: ["No ready local provider assigned", "SLA breach remediation pending"],
+                assignedProviders: [
+                  {
+                    id: "prov-northline",
+                    name: "Northline Logistics",
+                    readiness: "blocked",
+                    capacity: "Unavailable",
+                    verification: "Operational hold",
+                    sla: "82% on-time",
+                  },
+                ],
+                fields: [
+                  { id: "pickup", label: "Pickup address", type: "text", required: true, note: "Feeds coverage check." },
+                  { id: "inventory", label: "Large item inventory", type: "textarea", required: true, note: "Complexity flag." },
+                ],
+              },
+            ],
+          },
+        ],
       },
-      {
-        id: "PR-100-C",
-        label: "Weekend uplift",
-        value: "+ 12%",
-        note: "Applied only in cities with Saturday premium enabled.",
-      },
-    ],
-    addOns: [
-      { name: "Inside oven", price: "CAD 18", note: "Applies to one standard-size oven." },
-      { name: "Inside fridge", price: "CAD 14", note: "Requires power-off note in intake form." },
-      { name: "Pet-hair treatment", price: "CAD 22", note: "Flags dispatch for extra time buffer." },
-    ],
-    coverage: [
-      {
-        province: "SK",
-        cities: "Saskatoon, Warman, Martensville",
-        state: "live",
-        note: "Highest booking density, recurring slots stable.",
-      },
-      {
-        province: "AB",
-        cities: "Calgary, Edmonton",
-        state: "live",
-        note: "Weekend uplift enabled for both cities.",
-      },
-      {
-        province: "MB",
-        cities: "Winnipeg",
-        state: "pilot",
-        note: "Pilot slot volume limited while provider density grows.",
-      },
-    ],
-    formFields: [
-      { id: "rooms", label: "Bedrooms", type: "select", required: true, note: "Used in package pricing." },
-      { id: "bathrooms", label: "Bathrooms", type: "select", required: true, note: "Affects dispatch estimate." },
-      { id: "pets", label: "Pets in home", type: "checkbox", required: false, note: "Shows pet-hair add-on suggestion." },
-      { id: "access", label: "Entry instructions", type: "textarea", required: false, note: "Displayed to provider after booking confirmation." },
-      { id: "photos", label: "Reference photos", type: "file", required: false, note: "Optional upload for edge cases only." },
     ],
   },
   {
-    id: "SRV-220",
-    name: "Moving Support",
-    segment: "Logistics",
-    package: "Labour-only crew",
-    state: "limited",
-    pricingMode: "hybrid",
-    biddingEnabled: true,
-    liveRegions: 4,
-    locationMode: "Territory board with service-window gating",
-    formTemplateSummary: "9 request fields, 3 mandatory complexity flags",
-    createdAt: "2025-09-02",
-    description:
-      "Operationally sensitive moving-support service with base pricing plus bidding option for oversized or urgent jobs.",
-    summary: "Hybrid model used when order complexity or timing needs provider discretion.",
-    rolloutNote: "Service remains limited in some cities due to reassignment pressure and crew density.",
-    auditNotes: [
-      "Bidding mode should only be live where provider response times stay healthy.",
-      "Complexity flags must remain visible to operations before expanding territories.",
-    ],
-    pricingRules: [
+    id: "loc-calgary",
+    city: "Calgary",
+    province: "AB",
+    territory: "Southern Alberta",
+    marketLead: "Mason Gill",
+    status: "pilot",
+    services: [
       {
-        id: "PR-220-A",
-        label: "Base crew",
-        value: "CAD 159 / 2 movers / 2h",
-        note: "Fixed-price baseline for standard apartment moves.",
+        id: "svc-cleaning",
+        name: "Cleaning",
+        status: "live",
+        note: "Residential cleaning is stable. Commercial packages are in pilot review.",
+        subcategories: [
+          {
+            id: "sub-home-cleaning",
+            name: "Home cleaning",
+            status: "live",
+            packages: [
+              {
+                id: "pkg-calgary-home-standard",
+                name: "Standard home clean",
+                status: "live",
+                price: "CAD 119 / 2h",
+                pricingMode: "fixed",
+                addOns: ["Inside oven", "Pet-hair treatment"],
+                publishBlockers: [],
+                assignedProviders: [
+                  {
+                    id: "prov-foothills-clean",
+                    name: "Foothills Clean Team",
+                    readiness: "ready",
+                    capacity: "32 jobs / week",
+                    verification: "Verified until 2026-11-08",
+                    sla: "95% on-time",
+                  },
+                ],
+                fields: [
+                  { id: "bedrooms", label: "Bedrooms", type: "select", required: true, note: "Drives package tier." },
+                  { id: "parking", label: "Parking instructions", type: "text", required: false, note: "Important for downtown jobs." },
+                ],
+              },
+            ],
+          },
+          {
+            id: "sub-office-cleaning",
+            name: "Office cleaning",
+            status: "pilot",
+            packages: [
+              {
+                id: "pkg-calgary-office-pilot",
+                name: "Small office pilot",
+                status: "pilot",
+                price: "CAD 260 / visit",
+                pricingMode: "fixed",
+                addOns: ["Consumables restock"],
+                publishBlockers: ["Awaiting commercial backup provider"],
+                assignedProviders: [
+                  {
+                    id: "prov-foothills-clean",
+                    name: "Foothills Clean Team",
+                    readiness: "limited",
+                    capacity: "4 visits / week",
+                    verification: "Commercial rider pending",
+                    sla: "95% on-time",
+                  },
+                ],
+                fields: [
+                  { id: "sqft", label: "Approximate square footage", type: "number", required: true, note: "Pricing estimate." },
+                  { id: "access-window", label: "Access window", type: "select", required: true, note: "Dispatch requirement." },
+                ],
+              },
+            ],
+          },
+        ],
       },
       {
-        id: "PR-220-B",
-        label: "Urgency threshold",
-        value: "Bidding after < 18h notice",
-        note: "Switches flow to provider response queue.",
+        id: "svc-moving",
+        name: "Moving Support",
+        status: "live",
+        note: "Moving support is live with bid-enabled same-day handling.",
+        subcategories: [
+          {
+            id: "sub-labour-only",
+            name: "Labour-only moves",
+            status: "live",
+            packages: [
+              {
+                id: "pkg-calgary-moving-labour",
+                name: "Two-person moving crew",
+                status: "live",
+                price: "CAD 179 / 2h",
+                pricingMode: "hybrid",
+                addOns: ["Furniture disassembly", "Same-day premium"],
+                publishBlockers: [],
+                assignedProviders: [
+                  {
+                    id: "prov-rocky-movers",
+                    name: "Rocky Movers",
+                    readiness: "ready",
+                    capacity: "20 jobs / week",
+                    verification: "Verified until 2027-02-21",
+                    sla: "94% on-time",
+                  },
+                  {
+                    id: "prov-westline",
+                    name: "Westline Labour",
+                    readiness: "ready",
+                    capacity: "12 jobs / week",
+                    verification: "Verified until 2026-09-14",
+                    sla: "91% on-time",
+                  },
+                ],
+                fields: [
+                  { id: "pickup", label: "Pickup address", type: "text", required: true, note: "Coverage check." },
+                  { id: "stairs", label: "Flights of stairs", type: "number", required: true, note: "Pricing and capacity." },
+                  { id: "move-date", label: "Preferred move date", type: "date", required: true, note: "Bidding threshold." },
+                ],
+              },
+            ],
+          },
+        ],
       },
-      {
-        id: "PR-220-C",
-        label: "Stair surcharge",
-        value: "+ CAD 25 / additional flight",
-        note: "Visible in booking review before checkout.",
-      },
-    ],
-    addOns: [
-      { name: "Packing supplies", price: "CAD 34", note: "Inventory-limited in pilot cities." },
-      { name: "Furniture disassembly", price: "CAD 42", note: "Requires tool confirmation from provider." },
-      { name: "Same-day premium", price: "Bid only", note: "Available only when bidding is enabled." },
-    ],
-    coverage: [
-      {
-        province: "AB",
-        cities: "Calgary, Edmonton",
-        state: "live",
-        note: "High demand; same-day premium restricted.",
-      },
-      {
-        province: "MB",
-        cities: "Winnipeg",
-        state: "pilot",
-        note: "Crew response times under review.",
-      },
-      {
-        province: "SK",
-        cities: "Saskatoon",
-        state: "paused",
-        note: "Paused after repeated SLA breaches and reassignment load.",
-      },
-    ],
-    formFields: [
-      { id: "pickup", label: "Pickup address", type: "text", required: true, note: "Feeds coverage check." },
-      { id: "dropoff", label: "Drop-off address", type: "text", required: true, note: "Separate territory rules may apply." },
-      { id: "stairs", label: "Flights of stairs", type: "number", required: true, note: "Used in surcharge logic." },
-      { id: "truck", label: "Need truck", type: "checkbox", required: false, note: "May force bidding mode in limited territories." },
-      { id: "inventory", label: "Large item inventory", type: "textarea", required: true, note: "Operational review field." },
-      { id: "date", label: "Preferred move date", type: "date", required: true, note: "Affects urgency threshold." },
     ],
   },
   {
-    id: "SRV-310",
-    name: "Commercial Janitorial",
-    segment: "Commercial",
-    package: "Facility maintenance",
-    state: "live",
-    pricingMode: "fixed",
-    biddingEnabled: false,
-    liveRegions: 5,
-    locationMode: "Province and territory matrix",
-    formTemplateSummary: "8 request fields, 1 compliance upload",
-    createdAt: "2025-03-11",
-    description:
-      "Commercial janitorial package with contract-style intake, site-scope fields, and territory-level rollout control.",
-    summary: "Contract-oriented service with structured request data and stable provider qualification rules.",
-    rolloutNote: "Best performing enterprise service for franchise expansion planning.",
-    auditNotes: [
-      "Commercial services should make availability and live/paused regions obvious to avoid over-promising coverage.",
-    ],
-    pricingRules: [
+    id: "loc-winnipeg",
+    city: "Winnipeg",
+    province: "MB",
+    territory: "Manitoba",
+    marketLead: "Lina Sandhu",
+    status: "blocked",
+    services: [
       {
-        id: "PR-310-A",
-        label: "Base visit fee",
-        value: "CAD 240 / visit",
-        note: "Applies to sites under 2,500 sq ft.",
+        id: "svc-cleaning",
+        name: "Cleaning",
+        status: "pilot",
+        note: "Residential cleaning is visible internally but not fully published.",
+        subcategories: [
+          {
+            id: "sub-home-cleaning",
+            name: "Home cleaning",
+            status: "pilot",
+            packages: [
+              {
+                id: "pkg-winnipeg-home-standard",
+                name: "Standard home clean",
+                status: "pilot",
+                price: "CAD 115 / 2h",
+                pricingMode: "fixed",
+                addOns: ["Inside fridge"],
+                publishBlockers: ["Need one more provider with approved documents"],
+                assignedProviders: [
+                  {
+                    id: "prov-red-river-clean",
+                    name: "Red River Clean",
+                    readiness: "limited",
+                    capacity: "10 jobs / week",
+                    verification: "Insurance renewal in review",
+                    sla: "90% on-time",
+                  },
+                ],
+                fields: [
+                  { id: "bedrooms", label: "Bedrooms", type: "select", required: true, note: "Pricing tier." },
+                  { id: "notes", label: "Special notes", type: "textarea", required: false, note: "Provider context." },
+                ],
+              },
+            ],
+          },
+        ],
       },
-      {
-        id: "PR-310-B",
-        label: "Square-foot tier",
-        value: "+ CAD 0.11 / sq ft",
-        note: "Applied above the base threshold.",
-      },
-      {
-        id: "PR-310-C",
-        label: "Night service premium",
-        value: "+ 9%",
-        note: "Enabled only in enterprise contracts.",
-      },
-    ],
-    addOns: [
-      { name: "Consumables restock", price: "CAD 26", note: "Requires supply closet access field." },
-      { name: "Floor polish", price: "CAD 48", note: "Visible only for commercial-qualified providers." },
-    ],
-    coverage: [
-      {
-        province: "AB",
-        cities: "Edmonton, Calgary",
-        state: "live",
-        note: "Strong enterprise provider supply.",
-      },
-      {
-        province: "SK",
-        cities: "Saskatoon, Regina",
-        state: "live",
-        note: "Franchise-led coverage expansion.",
-      },
-      {
-        province: "BC",
-        cities: "Vancouver",
-        state: "pilot",
-        note: "Pilot contracts only while provider onboarding completes.",
-      },
-    ],
-    formFields: [
-      { id: "site-size", label: "Approximate square footage", type: "number", required: true, note: "Used in pricing tier." },
-      { id: "frequency", label: "Cleaning frequency", type: "select", required: true, note: "Drives contract quote cadence." },
-      { id: "access-window", label: "Preferred access window", type: "select", required: true, note: "Dispatch planning input." },
-      { id: "site-notes", label: "Site notes", type: "textarea", required: false, note: "Special handling or security needs." },
-      { id: "floorplan", label: "Floorplan upload", type: "file", required: false, note: "Requested for multi-floor sites." },
     ],
   },
 ];
 
-export const serviceDirectoryMetrics = [
-  { label: "Live services", value: "18", delta: "3 in pilot rollout", tone: "success" as const },
-  { label: "Bid-enabled", value: "4", delta: "Ops approval needed", tone: "warning" as const },
-  { label: "Paused regions", value: "6", delta: "Need coverage review", tone: "info" as const },
-  { label: "Form templates", value: "27", delta: "2 pending edits", tone: "danger" as const },
+export const locationServiceMetrics = [
+  { label: "Configured locations", value: "3", delta: "2 with live packages", tone: "info" as const },
+  { label: "Live packages", value: "5", delta: "Customer bookable", tone: "success" as const },
+  { label: "Provider gaps", value: "4", delta: "Blockers to publish", tone: "danger" as const },
+  { label: "Pilot packages", value: "3", delta: "Need rollout review", tone: "warning" as const },
 ];
 
-export function getServices() {
-  return serviceProfiles;
+export function getServiceLocations() {
+  return serviceLocations;
 }
 
-export function getServiceById(id: string) {
-  return serviceProfiles.find((service) => service.id === id);
+export function getLocationById(locationId: string) {
+  return serviceLocations.find((location) => location.id === locationId);
+}
+
+export function getLocalService(locationId: string, serviceId: string) {
+  return getLocationById(locationId)?.services.find((service) => service.id === serviceId);
+}
+
+export function getLocalSubcategory(locationId: string, serviceId: string, subcategoryId: string) {
+  return getLocalService(locationId, serviceId)?.subcategories.find((subcategory) => subcategory.id === subcategoryId);
+}
+
+export function getLocalPackage(locationId: string, packageId: string) {
+  const location = getLocationById(locationId);
+  if (!location) return undefined;
+
+  for (const service of location.services) {
+    for (const subcategory of service.subcategories) {
+      const localPackage = subcategory.packages.find((item) => item.id === packageId);
+      if (localPackage) {
+        return { localPackage, service, subcategory };
+      }
+    }
+  }
+
+  return undefined;
+}
+
+export function countPackages(location: ServiceLocation) {
+  return location.services.reduce(
+    (serviceTotal, service) =>
+      serviceTotal +
+      service.subcategories.reduce((subcategoryTotal, subcategory) => subcategoryTotal + subcategory.packages.length, 0),
+    0,
+  );
+}
+
+export function countProviderGaps(location: ServiceLocation) {
+  return location.services.reduce(
+    (serviceTotal, service) =>
+      serviceTotal +
+      service.subcategories.reduce(
+        (subcategoryTotal, subcategory) =>
+          subcategoryTotal +
+          subcategory.packages.filter(
+            (localPackage) =>
+              localPackage.publishBlockers.length > 0 ||
+              localPackage.assignedProviders.every((provider) => provider.readiness !== "ready"),
+          ).length,
+        0,
+      ),
+    0,
+  );
 }

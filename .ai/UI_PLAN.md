@@ -243,24 +243,52 @@ Even if permissions are mocked, the UI should anticipate future RBAC complexity.
 
 ---
 
-## 5. Service Management
+## 5. Location-First Service Management
 
-This area defines what customers can book and how services behave.
+This area defines what customers can book in each operating location and who can fulfill it locally.
+
+Core operating hierarchy:
+
+`location / territory -> services -> subcategories -> packages -> assigned local providers`
+
+The admin UX should treat location as the first-class setup context. Global service definitions may still exist behind the scenes, but the primary operational workflow should answer:
+
+- Which services are available in this city/province/territory?
+- Which subcategories are enabled under each local service?
+- Which packages can customers book in that location?
+- Which local providers are assigned to fulfill each package?
+- Is the location/package live, paused, pilot-only, or missing provider coverage?
+
+This is different from a generic service catalog. A package should not be considered operationally live just because the service exists globally; it should be live only when the package is configured for that location and has suitable local provider coverage.
 
 | # | Page | Route | Status | Notes |
 |---|------|-------|:------:|-------|
-| 5.1 | Service categories list | `/services` | `[x]` | `app/(portal)/services/page.tsx` + mock domain in `lib/mock/services.ts` |
-| 5.2 | Service category detail | `/services/[id]` | `[x]` | `app/(portal)/services/[id]/page.tsx` |
-| 5.3 | Create/edit service form | `/services/[id]/edit` | `[x]` | UI-only config in `app/(portal)/services/[id]/edit/page.tsx` |
-| 5.4 | Pricing rules and add-ons | `/services/[id]/pricing` | `[x]` | `app/(portal)/services/[id]/pricing/page.tsx` |
-| 5.5 | Service availability by location | `/services/[id]/coverage` | `[x]` | `app/(portal)/services/[id]/coverage/page.tsx` |
-| 5.6 | Dynamic form fields builder | `/services/[id]/forms` | `[x]` | `app/(portal)/services/[id]/forms/page.tsx` |
+| 5.1 | Locations service matrix | `/services` | `[x]` | location-first matrix in `app/(portal)/services/page.tsx` + `lib/mock/services.ts` |
+| 5.2 | Location service setup | `/services/locations/[locationId]` | `[x]` | choose location, view enabled services, coverage health, provider gaps |
+| 5.3 | Location service detail | `/services/locations/[locationId]/services/[serviceId]` | `[x]` | manage subcategories under a service for that location |
+| 5.4 | Subcategory package builder | `/services/locations/[locationId]/services/[serviceId]/subcategories/[subcategoryId]` | `[x]` | create/edit packages, add-ons, pricing mode for that location |
+| 5.5 | Package provider assignment | `/services/locations/[locationId]/packages/[packageId]/providers` | `[x]` | assign local providers, show capacity, verification status, SLA readiness |
+| 5.6 | Location package pricing and forms | `/services/locations/[locationId]/packages/[packageId]/configure` | `[x]` | package-specific pricing, intake fields, bid/fixed mode, customer-visible settings |
 
 UI considerations:
 
-- support hierarchy: category -> segment -> package
-- clearly distinguish fixed-price vs bid-enabled offerings
-- show where a service is live, paused, or unavailable
+- support hierarchy: location -> service -> subcategory -> package -> assigned providers
+- make location status visible before service/package status
+- clearly distinguish global service availability from local package readiness
+- show local provider assignment coverage for every package
+- clearly distinguish fixed-price vs bid-enabled packages per location
+- show where a package is live, paused, pilot-only, unavailable, or blocked by missing providers
+- allow admins to configure the same package differently by location when needed
+
+Key UI needs:
+
+- location picker / territory matrix as the entry point
+- service enable/disable controls scoped to a location
+- subcategory management inside each local service
+- package builder with pricing, add-ons, service rules, and intake fields
+- provider assignment table per package with capacity/readiness indicators
+- safe publish controls so a package cannot go live without required local provider coverage
+- clear audit trail for who changed local availability, pricing, forms, and provider assignments
 
 ---
 
