@@ -65,20 +65,70 @@ npm run lint     # Run ESLint
 - **Location-first service management**: Services configured per location/territory
 - **Component-driven**: Reusable UI primitives in `components/ui/`
 
-### Backend Context (Future Integration)
-The admin portal will connect to 10 microservices:
-- API Gateway (routing, auth)
-- Auth Service (Clerk integration)
-- User Service (profiles, RBAC)
+### Backend Context
+
+All web and mobile apps must call backend APIs through `servygo-api-gateway`.
+Frontend apps should not call microservices directly.
+
+Current MVP backend reality:
+
+- `servygo-auth-service` is the only microservice implemented for MVP.
+- `servygo-api-gateway` is the single frontend-facing backend entry point.
+- Other services are planned/future and should be treated as unavailable until implemented.
+- This admin portal stays mock-data-first for product UI, role simulation, and unfinished domains.
+
+Future service map behind the gateway:
+
+- API Gateway (single public backend entry point, auth gating, routing)
+- Auth Service (Clerk integration, account access state)
+- User Service (profiles, RBAC, territories, consent)
 - Booking Service (jobs, schedules)
 - Payment Service (Stripe, payouts)
 - Dispatch Service (worker matching)
 - Reviews Service (ratings, moderation)
-- Analytics Service (dashboards, reports)
+- Analytics Service (dashboards, reports, audit/compliance history)
 - Notification Service (email, SMS, push)
 - Metadata Service (config, themes)
 
-All services run on AWS ca-central-1 (Montreal) for Canadian data residency.
+All production services run in AWS ca-central-1 (Montreal) for Canadian data residency.
+
+### Clerk Login and API Gateway Flow
+
+Planned admin login uses Clerk for the browser session while keeping API Gateway as the only backend API path.
+
+```text
+Admin Portal
+  -> Clerk login/session
+  -> API Gateway with Authorization: Bearer <Clerk JWT>
+      -> validates token
+      -> calls auth-service access-check with INTERNAL_SERVICE_TOKEN
+      -> proxies to target service when allowed
+```
+
+Clerk webhooks also go through API Gateway:
+
+```text
+Clerk
+  -> POST /auth/webhooks/clerk on servygo-api-gateway
+  -> forwarded to servygo-auth-service /api/v1/webhooks/clerk
+```
+
+For now, Clerk should prove identity and auth-service should decide whether the account is allowed, locked, suspended, pending review, or deleted. Admin role and territory remain mocked in this portal because user-service/RBAC is not MVP-ready yet.
+
+Identity and profile boundaries:
+
+- Clerk is the source for login identity and basic profile fields such as primary email, first name, last name, profile image, and social login accounts.
+- Auth-service stores only auth-domain data: Clerk user id, ServyGo internal user id, account access state, webhook processing, and auth events.
+- Auth-service should not become the user profile, admin role, territory, phone, consent, or notification database.
+- Future user-service/RBAC owns canonical ServyGo user type, profile, phone, consent, admin role, territory scope, and permissions.
+- API Gateway is responsible for receiving the Clerk JWT from frontend apps, validating/gating access, and forwarding approved requests to internal services.
+
+Admin account direction:
+
+- Admin portal registration should not be open public self-signup.
+- Admin accounts should be invited or provisioned by an authorized admin, then completed through Clerk.
+- Customer, provider, worker, and franchise registration can use public app sign-up flows, but their business profiles should be created by future user-service/onboarding flows.
+- Until user-service/RBAC exists, the portal keeps its current mocked admin role selector for UI permission simulation only.
 
 ---
 
@@ -250,8 +300,8 @@ servygo-admin-portal/
 │   ├── .ai/                   # AI memory (DESIGN.md, MEMORY.md)
 │   ├── docs/                  # Full documentation
 │   │   ├── 00-source-docs/    # Original SRS, TRD files
-│   │   ├── 01-architecture/   # System architecture docs
-│   │   ├── 02-requirements/   # Requirements summaries
+│   │   ├── 02-architecture/   # System architecture docs
+│   │   ├── 03-requirements/   # Requirements summaries
 │   │   └── ...                # More docs folders
 │   └── scripts/               # Setup scripts
 │
@@ -356,7 +406,7 @@ Mock domains include:
 7. Session expires after inactivity (shows warning at 70s, locks at 100s)
 8. User can refresh session or sign out
 
-**Note**: Real implementation will use Clerk for authentication.
+**Note**: Real implementation will use Clerk for authentication. Backend calls must still go through `servygo-api-gateway`; the admin portal should not call `servygo-auth-service` directly.
 
 ### Route Protection
 
@@ -379,6 +429,8 @@ export default function PortalLayout({ children }) {
 - Is session locked due to timeout?
 
 If check fails, redirects to login or shows forbidden page.
+
+When Clerk is wired, the browser session check should come from Clerk. The route permission layer can continue using the current mocked admin role model until a real RBAC source exists behind API Gateway.
 
 ### Component Patterns
 
@@ -494,7 +546,7 @@ If check fails, redirects to login or shows forbidden page.
 - Real API integration (replace mock data)
 - WebSocket for real-time updates
 
-See full tracking in [UI Plan - Admin Portal](../servygo-knowledge/docs/ui-plan-admin-portal.md) with 87 planned pages.
+See full tracking in [UI Plan - Admin Portal](knowledge/docs/01-plans/ui-plan-admin-portal.md) with 87 planned pages.
 
 ---
 
@@ -506,9 +558,10 @@ This project is part of larger ServyGo platform. For more details:
 
 Full documentation lives in `knowledge/` folder (symlink to central repo at `../servygo-knowledge`). This is single source of truth for all ServyGo project knowledge:
 
-- **Requirements**: [`knowledge/docs/02-requirements/srs-admin.md`](knowledge/docs/02-requirements/srs-admin.md) - Complete SRS for admin portal
-- **Architecture**: [`knowledge/docs/01-architecture/system-overview.md`](knowledge/docs/01-architecture/system-overview.md) - System architecture and infrastructure
-- **UI Plan**: [`knowledge/docs/ui-plan-admin-portal.md`](knowledge/docs/ui-plan-admin-portal.md) - Detailed UI build checklist (87 pages, living document)
+- **Requirements**: [`knowledge/docs/03-requirements/srs-admin.md`](knowledge/docs/03-requirements/srs-admin.md) - Complete SRS for admin portal
+- **Architecture**: [`knowledge/docs/02-architecture/system-overview.md`](knowledge/docs/02-architecture/system-overview.md) - System architecture and infrastructure
+- **UI Plan**: [`knowledge/docs/01-plans/ui-plan-admin-portal.md`](knowledge/docs/01-plans/ui-plan-admin-portal.md) - Detailed UI build checklist (87 pages, living document)
+- **Brand Guide**: [`knowledge/docs/06-standards/brand-guide.md`](knowledge/docs/06-standards/brand-guide.md) - ServyGo colors, typography, components, and accessibility guidance
 - **Technical Design**: [`knowledge/.ai/DESIGN.md`](knowledge/.ai/DESIGN.md) - Architecture decisions summary (includes admin portal UI section)
 - **Project Memory**: [`knowledge/.ai/MEMORY.md`](knowledge/.ai/MEMORY.md) - Active project context (includes admin portal status)
 
@@ -547,7 +600,7 @@ Private repository. All rights reserved by ServyGo Inc.
 ### If You Are New to Project
 
 1. Read this README first
-2. Check `knowledge/docs/ui-plan-admin-portal.md` to see what is built and what is planned
+2. Check `knowledge/docs/01-plans/ui-plan-admin-portal.md` to see what is built and what is planned
 3. Look at `lib/mock/admin-shell.ts` to understand RBAC system
 4. Run `npm run dev` and explore the app with different roles
 5. Check `knowledge/docs/09-onboarding/` for detailed setup guide
@@ -555,6 +608,9 @@ Private repository. All rights reserved by ServyGo Inc.
 ### Common Gotchas
 
 - **Mock data only**: Do not try to call APIs, they do not exist yet
+- **Gateway only**: When APIs are added, call `servygo-api-gateway`, not individual microservices
+- **Only auth-service is MVP-ready**: Treat all other microservices as planned/future
+- **Clerk split**: Clerk owns login/session, auth-service owns account access state, mocked admin role still drives current UI permissions
 - **Role matters**: Some pages hide based on your selected role
 - **Session timeout**: Demo session expires quickly (for testing security flows)
 - **Knowledge symlink**: `knowledge/` folder is junction point to parent directory
