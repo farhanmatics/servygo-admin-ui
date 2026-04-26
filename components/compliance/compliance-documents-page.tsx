@@ -7,8 +7,10 @@ import { Card } from "@/components/ui/card";
 import { DataGrid } from "@/components/ui/data-grid";
 import { ActiveFilters, FilterBar } from "@/components/ui/filter-bar";
 import { Field, Input, Select } from "@/components/ui/input";
+import { Modal } from "@/components/ui/overlay";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { useMockAuth, useToast } from "@/components/providers";
 import {
   documentTypeLabel,
   getComplianceRecords,
@@ -21,9 +23,14 @@ import {
 import { formatDateCA, maskIdentifier } from "@/lib/format";
 
 export function ComplianceDocumentsPage() {
+  const { isReadOnly } = useMockAuth();
+  const { pushToast } = useToast();
   const [status, setStatus] = useState<VerificationStatus | "all">("all");
   const [subject, setSubject] = useState<SubjectType | "all">("all");
   const [query, setQuery] = useState("");
+  const [bulkModalOpen, setBulkModalOpen] = useState(false);
+  const [bulkDecision, setBulkDecision] = useState<"approve" | "reject" | "">("");
+  const [bulkRationale, setBulkRationale] = useState("");
   const rows = getComplianceRecords();
 
   const filtered = useMemo(() => {
@@ -83,20 +90,74 @@ export function ComplianceDocumentsPage() {
     },
   ];
 
+  const pendingCount = filtered.filter(r => r.status === "pending-review").length;
+
+  function handleBulkSubmit() {
+    pushToast({
+      message: `Bulk ${bulkDecision}: ${pendingCount} pending document(s) processed. Audit trail updated.`,
+      tone: bulkDecision === "approve" ? "success" : "danger",
+    });
+    setBulkModalOpen(false);
+    setBulkDecision("");
+    setBulkRationale("");
+  }
+
   return (
     <div className="admin-grid">
       <PageHeader
         actions={
-          <Link href="/compliance/history">
-            <Button size="md" variant="secondary">
-              Verification history
-            </Button>
-          </Link>
+          <div className="flex gap-2">
+            {!isReadOnly && pendingCount > 0 && (
+              <Button onClick={() => setBulkModalOpen(true)} size="md" variant="secondary">
+                Bulk action ({pendingCount})
+              </Button>
+            )}
+            <Link href="/compliance/history">
+              <Button size="md" variant="secondary">
+                Verification history
+              </Button>
+            </Link>
+          </div>
         }
         description="Document verification queue should help reviewers approve safely, reject with reasons, and request precise resubmissions."
         eyebrow="Document verification"
         title="Pending Verifications"
       />
+
+      {bulkModalOpen && (
+        <Modal onClose={() => setBulkModalOpen(false)} title={`Bulk verification — ${pendingCount} pending documents`}>
+          <div className="space-y-4">
+            <p className="text-[13px] text-body">Apply a single decision to all <span className="font-medium text-ink">{pendingCount}</span> currently-visible pending documents. Individual decisions are still recommended for complex cases.</p>
+            <div className="flex gap-2">
+              {(["approve", "reject"] as const).map(d => (
+                <button
+                  className={`rounded-lg border px-4 py-2 text-[13px] font-medium transition-colors ${bulkDecision === d ? "border-forest bg-forest text-cream" : "border-line bg-panel text-body hover:border-ink"}`}
+                  key={d}
+                  onClick={() => setBulkDecision(d)}
+                >
+                  {d.charAt(0).toUpperCase() + d.slice(1)} all
+                </button>
+              ))}
+            </div>
+            <div>
+              <label className="text-[12px] font-medium text-ink">Shared rationale (required)</label>
+              <textarea
+                className="mt-1 w-full rounded-lg border border-line bg-panel px-3 py-2 text-[13px] text-ink placeholder:text-stone focus:outline-none focus:ring-2 focus:ring-forest/40"
+                onChange={e => setBulkRationale(e.target.value)}
+                placeholder="Provide a shared reason for this bulk decision…"
+                rows={3}
+                value={bulkRationale}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button disabled={!bulkDecision || !bulkRationale.trim()} onClick={handleBulkSubmit} size="md" variant="primary">
+                Confirm bulk {bulkDecision || "decision"}
+              </Button>
+              <Button onClick={() => setBulkModalOpen(false)} size="md" variant="ghost">Cancel</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
       <Card className="overflow-hidden p-0">
         <div className="border-b border-line px-4 py-3">
           <FilterBar>

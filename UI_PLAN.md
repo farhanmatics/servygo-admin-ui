@@ -95,12 +95,12 @@ Suggested mock domains:
 - `admins`
 - `users`
 - `providers`
-- `franchises`
+- `franchises` (territories, operators, staff, geo-boundaries, promotions)
 - `services`
 - `bookings`
 - `jobs`
 - `payments`
-- `payouts`
+- `payouts` (provider payouts + franchise payouts)
 - `disputes`
 - `documents`
 - `reviews`
@@ -108,6 +108,10 @@ Suggested mock domains:
 - `reports`
 - `audit-logs`
 - `settings`
+- `promos` (promo codes, campaigns)
+- `content` (CMS / dynamic content)
+- `ads` (advertisement slots)
+- `fraud-rules` (detection thresholds)
 
 ---
 
@@ -220,6 +224,7 @@ This is a foundational admin area and should be designed for safe bulk operation
 | 3.5 | User financial snapshot | `/users/[id]/financials` | `[x]` | `app/(portal)/users/[id]/financials/page.tsx` |
 | 3.6 | Suspend / activate / reset password dialogs | inline | `[x]` | inline modal flows in `components/users/user-detail-shell.tsx` + `user-list-page.tsx` |
 | 3.7 | Export users flow | inline | `[x]` | mock export action in `components/users/user-list-page.tsx` |
+| 3.8 | Signup request form template manager | `/users/form-templates` | `[x]` | Manage dynamic registration form fields by user type and service category (SRS: signup request form templates) |
 
 Key UI needs:
 
@@ -227,6 +232,7 @@ Key UI needs:
 - bulk selection
 - safe destructive confirmations
 - visible reason capture for suspension and manual overrides
+- configurable signup form templates per user type
 
 ---
 
@@ -305,6 +311,7 @@ Bookings are a high-frequency operational workflow and should be one of the firs
 | 6.5 | Cancel booking flow | `/bookings/[id]/cancel` | `[x]` | `app/(portal)/bookings/[id]/cancel/page.tsx` + `components/bookings/booking-cancel-page.tsx` |
 | 6.6 | Reschedule booking flow | `/bookings/[id]/reschedule` | `[x]` | `app/(portal)/bookings/[id]/reschedule/page.tsx` + `components/bookings/booking-reschedule-page.tsx` |
 | 6.7 | Booking timeline / audit page | `/bookings/[id]/timeline` | `[x]` | `app/(portal)/bookings/[id]/timeline/page.tsx` + `components/bookings/booking-timeline-page.tsx` |
+| 6.8 | Booking export flow | inline | `[x]` | Export filtered booking lists to Excel/PDF (SRS: export booking reports) |
 
 Must-show details:
 
@@ -349,6 +356,8 @@ This module should look precise, sober, and audit-friendly.
 | 8.6 | Commission breakdown | `/finance/commissions` | `[x]` | `app/(portal)/finance/commissions/page.tsx` + `components/finance/commissions-page.tsx` |
 | 8.7 | Revenue reports | `/finance/reports` | `[x]` | `app/(portal)/finance/reports/page.tsx` + `components/finance/reports-page.tsx` |
 | 8.8 | Export center | `/finance/exports` | `[x]` | `app/(portal)/finance/exports/page.tsx` + `components/finance/exports-page.tsx` |
+| 8.9 | Franchise payout queue | `/finance/franchise-payouts` | `[x]` | Franchise payout approval workflow, separate from provider payouts (SRS: franchise payout management) |
+| 8.10 | Franchise payout detail | `/finance/franchise-payouts/[id]` | `[x]` | Individual franchise payout review with territory context and commission split |
 
 Financial UI constraints:
 
@@ -370,6 +379,7 @@ This module should help admins make defensible decisions quickly.
 | 9.3 | Resolution decision flow | `/disputes/[id]/resolve` | `[x]` | `app/(portal)/disputes/[id]/resolve/page.tsx` + `components/disputes/dispute-resolve-page.tsx` |
 | 9.4 | Escalation flow | `/disputes/[id]/escalate` | `[x]` | `app/(portal)/disputes/[id]/escalate/page.tsx` + `components/disputes/dispute-escalate-page.tsx` |
 | 9.5 | Dispute analytics | `/disputes/insights` | `[x]` | `app/(portal)/disputes/insights/page.tsx` + `components/disputes/dispute-insights-page.tsx` |
+| 9.6 | Dispute appeal review | `/disputes/[id]/appeal` | `[x]` | Appeal review flow requiring a different reviewer than the original decision (dispute policy: appeal process) |
 
 Important UX details:
 
@@ -392,6 +402,7 @@ This is one of the most Canada-sensitive admin areas because it touches identity
 | 10.4 | Expiry monitoring board | `/compliance/expiring` | `[x]` | `app/(portal)/compliance/expiring/page.tsx` + `components/compliance/compliance-expiring-page.tsx` |
 | 10.5 | Verification history | `/compliance/history` | `[x]` | `app/(portal)/compliance/history/page.tsx` + `components/compliance/compliance-history-page.tsx` |
 | 10.6 | Compliance dashboard | `/compliance` | `[x]` | `app/(portal)/compliance/page.tsx` + `components/compliance/compliance-dashboard-page.tsx` |
+| 10.7 | Bulk verification operations | inline | `[x]` | Batch approve/reject multiple documents at once with shared rationale (SRS: bulk verification operations) |
 
 UX rules:
 
@@ -412,6 +423,7 @@ This area should be lightweight to use and easy to triage.
 | 11.2 | Review detail | `/reviews/moderation/[id]` | `[x]` | `app/(portal)/reviews/moderation/[id]/page.tsx` + `components/reviews/review-detail-page.tsx` |
 | 11.3 | Fraud signals board | `/risk/reviews` | `[x]` | `app/(portal)/risk/reviews/page.tsx` + `components/reviews/review-risk-page.tsx` |
 | 11.4 | Hidden/removed review archive | `/reviews/archive` | `[x]` | `app/(portal)/reviews/archive/page.tsx` + `components/reviews/review-archive-page.tsx` |
+| 11.5 | Review response management | `/reviews/responses` | `[x]` | Manage and moderate provider responses to customer reviews (SRS: review response management) |
 
 ---
 
@@ -428,6 +440,7 @@ These views should be executive-friendly without losing operator usefulness.
 | 12.5 | Provider performance | `/analytics/providers` | `[x]` | `app/(portal)/analytics/providers/page.tsx` + `components/analytics/provider-performance-page.tsx` |
 | 12.6 | Service performance | `/analytics/services` | `[x]` | `app/(portal)/analytics/services/page.tsx` + `components/analytics/service-performance-page.tsx` |
 | 12.7 | Scheduled reports | `/analytics/reports/scheduled` | `[x]` | `app/(portal)/analytics/reports/scheduled/page.tsx` + `components/analytics/scheduled-reports-page.tsx` |
+| 12.8 | Report email distribution | inline | `[x]` | Configure and send scheduled reports to email recipients (SRS: report distribution via email) |
 
 Reporting UX:
 
@@ -462,6 +475,11 @@ Only some roles should be able to access these areas. The UX must make that obvi
 | 14.5 | Loyalty settings | `/settings/loyalty` | `[x]` | `app/(portal)/settings/loyalty/page.tsx` + `components/settings/settings-loyalty-page.tsx` |
 | 14.6 | Service pause / freeze controls | `/settings/emergency` | `[x]` | `app/(portal)/settings/emergency/page.tsx` + `components/settings/settings-emergency-page.tsx` |
 | 14.7 | Audit logs | `/settings/audit-logs` | `[x]` | `app/(portal)/settings/audit-logs/page.tsx` + `components/settings/settings-audit-logs-page.tsx` |
+| 14.8 | Promo codes & campaigns | `/settings/promos` | `[x]` | Create, edit, activate/deactivate promo codes and marketing campaigns with usage tracking (SRS: promo code and campaign management) |
+| 14.9 | CMS / dynamic content management | `/settings/content` | `[x]` | Manage dynamic platform content: FAQ entries, help articles, announcement banners (SRS: CMS integration for dynamic content) |
+| 14.10 | Advertisement slot management | `/settings/ads` | `[x]` | Configure and manage promotional/advertisement placements across customer-facing surfaces (SRS: advertisement slot management) |
+| 14.11 | Email & SMS channel configuration | `/settings/channels` | `[x]` | SendGrid/Twilio settings, sender addresses, delivery preferences (SRS: email/SMS configuration) |
+| 14.12 | Fraud detection rules | `/settings/fraud-rules` | `[x]` | Configure rule-based fraud detection thresholds for customers and providers (TRD: configurable fraud detection) |
 
 ---
 
@@ -486,6 +504,36 @@ This is an internal portal, but legal and privacy support surfaces still matter.
 | 16.3 | Maintenance page | `/maintenance` | `[x]` | `app/(portal)/maintenance/page.tsx` + `components/system/maintenance-page.tsx` |
 | 16.4 | Read-only system state page | `/readonly` | `[x]` | `app/(portal)/readonly/page.tsx` + `components/system/readonly-page.tsx` |
 | 16.5 | Offline / degraded mode page | `/offline` | `[x]` | `app/(portal)/offline/page.tsx` + `components/system/offline-page.tsx` |
+
+---
+
+## 18. Franchise Management
+
+The admin portal is responsible for all HQ-level franchise operations. This covers territory setup, franchise operator onboarding, geo-boundary management, performance monitoring, and cross-franchise oversight. Franchise operators themselves use the Franchise Portal, but the admin portal is where territories are created, configured, and audited.
+
+| # | Page | Route | Status | Notes |
+|---|------|-------|:------:|-------|
+| 18.1 | Franchise territories list | `/franchises` | `[x]` | All territories with status, operator, provider count, revenue overview |
+| 18.2 | Create / edit territory | `/franchises/create` | `[x]` | Configure territory name, geo-boundary, operating hours, commission split |
+| 18.3 | Territory detail dashboard | `/franchises/[id]` | `[x]` | KPIs: active jobs, revenue, providers, SLA compliance, cancellation rate |
+| 18.4 | Territory geo-boundary editor | `/franchises/[id]/boundary` | `[x]` | Visual map-based geo-boundary definition and editing |
+| 18.5 | Assign franchise operator | `/franchises/[id]/operator` | `[x]` | Assign or reassign a franchise admin to a territory |
+| 18.6 | Franchise staff management | `/franchises/[id]/staff` | `[x]` | View and manage franchise staff users within the territory |
+| 18.7 | Franchise performance analytics | `/franchises/[id]/analytics` | `[x]` | Territory-level revenue trends, provider KPIs, booking volume, ratings |
+| 18.8 | Franchise provider oversight | `/franchises/[id]/providers` | `[x]` | Providers operating within the franchise territory with status and metrics |
+| 18.9 | Franchise document verification | `/franchises/[id]/documents` | `[x]` | Franchise-specific document verification (business registration, insurance) |
+| 18.10 | Franchise commission configuration | `/franchises/[id]/commissions` | `[x]` | Configure commission split between platform and franchise for this territory |
+| 18.11 | Franchise promotions approval | `/franchises/[id]/promotions` | `[x]` | Review and approve/reject locally created promotions requiring HQ sign-off |
+
+Key UI needs:
+
+- territory list as the entry point with map overview
+- clear status indicators: active, paused, onboarding, suspended
+- geo-boundary visualization using map panel
+- franchise operator assignment with role verification
+- commission split configuration with audit trail
+- promotion approval workflow with HQ/franchise communication
+- cross-franchise comparison views for performance benchmarking
 
 ---
 
@@ -519,7 +567,8 @@ Build in this order so we get a believable demo quickly:
 7. Document verification
 8. Financial management
 9. Service management
-10. Analytics, settings, and polish
+10. Franchise management
+11. Analytics, settings, promos, CMS, ads, fraud rules, and polish
 
 This sequence gives us an early admin demo that already feels real, even without APIs.
 
@@ -556,21 +605,23 @@ That is enough to demonstrate:
 | 0. Foundation & primitives | n/a (infra) |
 | 1. Authentication & access | 7 |
 | 2. Dashboard & overview | 4 |
-| 3. User management | 7 |
+| 3. User management | 8 |
 | 4. Role management | 4 |
 | 5. Service management | 6 |
-| 6. Booking management | 7 |
+| 6. Booking management | 8 |
 | 7. Live operations | 4 |
-| 8. Financial management | 8 |
-| 9. Disputes | 5 |
-| 10. Document verification | 6 |
-| 11. Reviews & fraud | 4 |
-| 12. Analytics & reporting | 7 |
+| 8. Financial management | 10 |
+| 9. Disputes | 6 |
+| 10. Document verification | 7 |
+| 11. Reviews & fraud | 5 |
+| 12. Analytics & reporting | 8 |
 | 13. Notifications | 3 |
-| 14. Platform configuration | 7 |
+| 14. Platform configuration | 12 |
 | 15. Legal / privacy support | 3 |
 | 16. System pages | 5 |
-| **Total admin-facing pages** | **87** |
+| 17. Cross-cutting quality | n/a (infra) |
+| 18. Franchise management | 11 |
+| **Total admin-facing pages** | **111** |
 
 ---
 

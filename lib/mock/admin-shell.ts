@@ -234,6 +234,53 @@ export const navGroups: { items: NavItem[]; label: string }[] = [
       },
     ],
   },
+  {
+    label: "Franchises",
+    items: [
+      {
+        badge: "5",
+        href: "/franchises",
+        name: "Territories",
+        roles: ["super-admin", "operations-admin", "finance-admin", "read-only-admin"],
+      },
+      {
+        badge: "4",
+        href: "/finance/franchise-payouts",
+        name: "Franchise Payouts",
+        roles: ["super-admin", "finance-admin", "read-only-admin"],
+      },
+    ],
+  },
+  {
+    label: "Platform",
+    items: [
+      {
+        href: "/settings/promos",
+        name: "Promos & Campaigns",
+        roles: ["super-admin", "operations-admin", "finance-admin", "read-only-admin"],
+      },
+      {
+        href: "/settings/content",
+        name: "CMS Content",
+        roles: ["super-admin", "read-only-admin"],
+      },
+      {
+        href: "/settings/channels",
+        name: "Email & SMS",
+        roles: ["super-admin", "read-only-admin"],
+      },
+      {
+        href: "/settings/fraud-rules",
+        name: "Fraud Rules",
+        roles: ["super-admin", "compliance-admin", "read-only-admin"],
+      },
+      {
+        href: "/settings/ads",
+        name: "Ad Slots",
+        roles: ["super-admin", "read-only-admin"],
+      },
+    ],
+  },
 ];
 
 export const routePermissions: { pattern: string; roles: AdminRole[] }[] = [
@@ -318,6 +365,42 @@ export const routePermissions: { pattern: string; roles: AdminRole[] }[] = [
   {
     pattern: "/offline",
     roles: Object.keys(adminRoleLabels) as AdminRole[],
+  },
+  {
+    pattern: "/franchises",
+    roles: ["super-admin", "operations-admin", "finance-admin", "read-only-admin"],
+  },
+  {
+    pattern: "/users/form-templates",
+    roles: ["super-admin", "compliance-admin", "read-only-admin"],
+  },
+  {
+    pattern: "/finance/franchise-payouts",
+    roles: ["super-admin", "finance-admin", "read-only-admin"],
+  },
+  {
+    pattern: "/reviews/responses",
+    roles: ["super-admin", "support-admin", "read-only-admin"],
+  },
+  {
+    pattern: "/settings/promos",
+    roles: ["super-admin", "operations-admin", "finance-admin", "read-only-admin"],
+  },
+  {
+    pattern: "/settings/content",
+    roles: ["super-admin", "read-only-admin"],
+  },
+  {
+    pattern: "/settings/ads",
+    roles: ["super-admin", "read-only-admin"],
+  },
+  {
+    pattern: "/settings/channels",
+    roles: ["super-admin", "read-only-admin"],
+  },
+  {
+    pattern: "/settings/fraud-rules",
+    roles: ["super-admin", "compliance-admin", "read-only-admin"],
   },
 ];
 

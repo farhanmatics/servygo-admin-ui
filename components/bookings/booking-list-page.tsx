@@ -176,6 +176,18 @@ export function BookingListPage() {
             >
               Bulk actions
             </Button>
+            <Button
+              onClick={() =>
+                pushToast({
+                  tone: "success",
+                  message: `Exporting ${filtered.length} booking(s) to Excel — file will download shortly.`,
+                })
+              }
+              size="md"
+              variant="secondary"
+            >
+              Export
+            </Button>
           </>
         }
         description="High-frequency booking operations should stay fast: strong filtering, clear SLA state, and one-click access to assignment, reassign, cancel, reschedule, and timeline workflows."
