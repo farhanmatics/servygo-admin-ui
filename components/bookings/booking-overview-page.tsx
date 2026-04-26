@@ -1,6 +1,7 @@
 import { Card, MetricCard } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { bookingPaymentTone, type BookingProfile } from "@/lib/mock/bookings";
+import { maskIdentifier } from "@/lib/format";
 
 export function BookingOverviewPage({ booking }: { booking: BookingProfile }) {
   return (
@@ -26,7 +27,7 @@ export function BookingOverviewPage({ booking }: { booking: BookingProfile }) {
 
       <div className="grid gap-4">
         <MetricCard delta="Gross booking value" label="Amount" tone="success" value={booking.amount} />
-        <MetricCard delta={booking.finance.captureReference} label="Capture reference" tone="info" value={booking.paymentStatus} />
+        <MetricCard delta={maskIdentifier(booking.finance.captureReference)} label="Capture reference" tone="info" value={booking.paymentStatus} />
         <Card>
           <div className="eyebrow">Participants</div>
           <div className="mt-3 space-y-2">

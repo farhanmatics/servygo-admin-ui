@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useMockAuth, useToast } from "@/components/providers";
 import { Button } from "@/components/ui/button";
@@ -21,14 +22,24 @@ import {
   type BookingRecord,
   type BookingStatus,
 } from "@/lib/mock/bookings";
+import { setFilterParam } from "@/lib/url-state";
 
 export function BookingListPage() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { isReadOnly } = useMockAuth();
   const { pushToast } = useToast();
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<BookingStatus | "all">("all");
-  const [priorityFilter, setPriorityFilter] = useState<BookingPriority | "all">("all");
-  const [paymentFilter, setPaymentFilter] = useState<BookingPaymentStatus | "all">("all");
+  const [statusFilter, setStatusFilter] = useState<BookingStatus | "all">(
+    (searchParams.get("status") as BookingStatus | null) ?? "all",
+  );
+  const [priorityFilter, setPriorityFilter] = useState<BookingPriority | "all">(
+    (searchParams.get("priority") as BookingPriority | null) ?? "all",
+  );
+  const [paymentFilter, setPaymentFilter] = useState<BookingPaymentStatus | "all">(
+    (searchParams.get("payment") as BookingPaymentStatus | null) ?? "all",
+  );
   const bookings = getBookings();
 
   const filtered = useMemo(() => {
@@ -207,7 +218,14 @@ export function BookingListPage() {
               />
             </Field>
             <Field label="Status">
-              <Select onChange={(event) => setStatusFilter(event.target.value as BookingStatus | "all")} value={statusFilter}>
+              <Select
+                onChange={(event) => {
+                  const next = event.target.value as BookingStatus | "all";
+                  setStatusFilter(next);
+                  router.replace(setFilterParam(pathname, new URLSearchParams(searchParams.toString()), "status", next), { scroll: false });
+                }}
+                value={statusFilter}
+              >
                 <option value="all">All statuses</option>
                 <option value="scheduled">scheduled</option>
                 <option value="in-progress">in-progress</option>
@@ -218,7 +236,14 @@ export function BookingListPage() {
               </Select>
             </Field>
             <Field label="Priority">
-              <Select onChange={(event) => setPriorityFilter(event.target.value as BookingPriority | "all")} value={priorityFilter}>
+              <Select
+                onChange={(event) => {
+                  const next = event.target.value as BookingPriority | "all";
+                  setPriorityFilter(next);
+                  router.replace(setFilterParam(pathname, new URLSearchParams(searchParams.toString()), "priority", next), { scroll: false });
+                }}
+                value={priorityFilter}
+              >
                 <option value="all">All priorities</option>
                 <option value="low">low</option>
                 <option value="normal">normal</option>
@@ -228,7 +253,11 @@ export function BookingListPage() {
             </Field>
             <Field label="Payment">
               <Select
-                onChange={(event) => setPaymentFilter(event.target.value as BookingPaymentStatus | "all")}
+                onChange={(event) => {
+                  const next = event.target.value as BookingPaymentStatus | "all";
+                  setPaymentFilter(next);
+                  router.replace(setFilterParam(pathname, new URLSearchParams(searchParams.toString()), "payment", next), { scroll: false });
+                }}
                 value={paymentFilter}
               >
                 <option value="all">All payment states</option>

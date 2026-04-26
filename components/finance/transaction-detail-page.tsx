@@ -2,6 +2,7 @@ import { Card, StatPill } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { transactionStatusTone, type TransactionProfile } from "@/lib/mock/finance";
+import { maskIdentifier } from "@/lib/format";
 
 export function TransactionDetailPage({ transaction }: { transaction: TransactionProfile }) {
   return (
@@ -32,6 +33,9 @@ export function TransactionDetailPage({ transaction }: { transaction: Transactio
         </Card>
         <Card>
           <div className="eyebrow">Audit notes</div>
+          <div className="mt-3 rounded-xl border border-line bg-panel-muted px-3 py-2 text-[12px] text-body">
+            Reference: {maskIdentifier(transaction.reference)}
+          </div>
           <div className="mt-3 space-y-2">
             {transaction.auditNotes.map((note) => (
               <div className="rounded-xl border border-line bg-panel-muted px-3 py-2" key={note}>

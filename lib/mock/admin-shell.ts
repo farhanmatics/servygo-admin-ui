@@ -279,6 +279,46 @@ export const routePermissions: { pattern: string; roles: AdminRole[] }[] = [
     pattern: "/disputes",
     roles: ["super-admin", "operations-admin", "support-admin", "read-only-admin"],
   },
+  {
+    pattern: "/compliance",
+    roles: ["super-admin", "compliance-admin", "read-only-admin"],
+  },
+  {
+    pattern: "/reviews",
+    roles: ["super-admin", "support-admin", "read-only-admin"],
+  },
+  {
+    pattern: "/risk/reviews",
+    roles: ["super-admin", "support-admin", "read-only-admin"],
+  },
+  {
+    pattern: "/analytics",
+    roles: ["super-admin", "finance-admin", "operations-admin", "read-only-admin"],
+  },
+  {
+    pattern: "/notifications",
+    roles: ["super-admin", "operations-admin", "compliance-admin", "support-admin", "read-only-admin"],
+  },
+  {
+    pattern: "/settings",
+    roles: ["super-admin", "read-only-admin"],
+  },
+  {
+    pattern: "/privacy",
+    roles: ["super-admin", "compliance-admin", "read-only-admin"],
+  },
+  {
+    pattern: "/maintenance",
+    roles: Object.keys(adminRoleLabels) as AdminRole[],
+  },
+  {
+    pattern: "/readonly",
+    roles: Object.keys(adminRoleLabels) as AdminRole[],
+  },
+  {
+    pattern: "/offline",
+    roles: Object.keys(adminRoleLabels) as AdminRole[],
+  },
 ];
 
 export const dashboardMetrics: DashboardMetric[] = [

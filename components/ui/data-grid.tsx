@@ -23,14 +23,16 @@ export function ColumnVisibilityMenu({
 
 export function DataGrid<T>({
   columns,
+  emptyMessage,
   rows,
 }: {
   columns: Column<T>[];
+  emptyMessage?: string;
   rows: T[];
 }) {
   return (
-    <div className="overflow-x-auto">
-      <table className="compact-table">
+    <div className="overflow-x-auto" role="region">
+      <table className="compact-table" role="table">
         <thead>
           <tr>
             {columns.map((column) => (
@@ -39,13 +41,21 @@ export function DataGrid<T>({
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, index) => (
-            <tr key={index}>
-              {columns.map((column) => (
-                <td key={column.key}>{column.render(row)}</td>
-              ))}
+          {rows.length === 0 ? (
+            <tr>
+              <td className="text-[13px] text-stone" colSpan={columns.length}>
+                {emptyMessage ?? "No results match the current filters."}
+              </td>
             </tr>
-          ))}
+          ) : (
+            rows.map((row, index) => (
+              <tr key={index}>
+                {columns.map((column) => (
+                  <td key={column.key}>{column.render(row)}</td>
+                ))}
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>

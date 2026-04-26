@@ -1,12 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useToast } from "@/components/providers";
+import { AlertCenterPopover } from "./alert-center-popover";
 import { ProfileMenu } from "./profile-menu";
 
 export function TopBar() {
-  const { pushToast } = useToast();
-
   return (
     <header className="surface-blur sticky top-0 z-20 rounded-[20px] border border-line/80 px-4 py-3 shadow-panel">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -44,13 +42,7 @@ export function TopBar() {
             >
               Saskatoon
             </button>
-            <Link
-              className="rounded-2xl border border-line bg-panel px-3 py-2 text-[12px] font-medium text-ink shadow-sm transition hover:border-line-strong"
-              href="/alerts"
-              onClick={() => pushToast({ message: "6 alerts are queued for review.", tone: "warning" })}
-            >
-              6 alerts
-            </Link>
+            <AlertCenterPopover />
             <div className="hidden xl:block">
               <ProfileMenu />
             </div>

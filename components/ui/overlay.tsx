@@ -40,6 +40,22 @@ export function Drawer({
   );
 }
 
+export function Sheet({
+  children,
+  title,
+}: {
+  children: ReactNode;
+  title: string;
+}) {
+  return (
+    <aside className="rounded-[24px] border border-line bg-panel p-4 shadow-floating">
+      <div className="eyebrow">Sheet</div>
+      <h3 className="mt-2 text-[1.2rem] leading-none">{title}</h3>
+      <div className="mt-4">{children}</div>
+    </aside>
+  );
+}
+
 export function ConfirmDialog({
   body,
   confirmLabel,

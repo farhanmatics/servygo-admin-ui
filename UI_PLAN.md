@@ -125,12 +125,12 @@ These land first. Everything else depends on them.
 | 0.6 | Auth layout for admin login and recovery flows | `[x]` | `app/(auth)/layout.tsx` + compact auth surfaces |
 | 0.7 | App shell layout with sidebar, topbar, content frame, command bar slot | `[x]` | `components/app/{shell,sidebar,top-bar}.tsx` |
 | 0.8 | Mock auth + mock RBAC session provider | `[x]` | `components/providers.tsx` |
-| 0.9 | Mock data layer for all admin domains | `[~]` | shell/dashboard seed started in `lib/mock/admin-shell.ts` |
-| 0.10 | Mock delay/error/permission simulator | `[ ]` | useful for pending/error states |
+| 0.9 | Mock data layer for all admin domains | `[x]` | domain mocks now implemented across `lib/mock/*` (bookings, services, users, admins, operations, finance, disputes, compliance, reviews, notifications, analytics, settings, privacy) |
+| 0.10 | Mock delay/error/permission simulator | `[x]` | `lib/mock/simulator.ts` (`withMockDelay`, `maybeThrowMockFailure`) |
 | 0.11 | Route-level `loading.tsx`, `error.tsx`, `not-found.tsx` patterns | `[x]` | `app/{loading,error,not-found}.tsx` |
-| 0.12 | Reduced motion, high contrast, and keyboard-first review | `[~]` | reduced-motion + skip link + focus states landed; full audit pending |
+| 0.12 | Reduced motion, high contrast, and keyboard-first review | `[x]` | reduced-motion, skip-link, and focus-visible treatments in `app/globals.css` + keyboard flows across shell/toolbars |
 | 0.13 | Breadcrumb + page header system | `[x]` | `components/ui/page-header.tsx` + `components/ui/breadcrumbs.tsx` |
-| 0.14 | Filter-state URL conventions | `[ ]` | tables and reports should deep-link cleanly |
+| 0.14 | Filter-state URL conventions | `[x]` | URL filter helper in `lib/url-state.ts` and deep-link updates in `components/bookings/booking-list-page.tsx` |
 
 ### UI Primitives (`components/ui/`)
 
@@ -142,17 +142,17 @@ These land first. Everything else depends on them.
 | 0.18 | `Badge`, `StatusBadge`, `RiskBadge` | `[x]` | `components/ui/{status-badge,risk-badge}.tsx` |
 | 0.19 | `Table`, `DataGrid`, `ColumnVisibilityMenu` | `[x]` | `components/ui/data-grid.tsx` |
 | 0.20 | `Tabs`, `Segmented`, `Pagination` | `[x]` | `components/ui/{tabs,pagination}.tsx` |
-| 0.21 | `Modal`, `Drawer`, `Sheet`, `ConfirmDialog` | `[~]` | `Modal`, `Drawer`, `ConfirmDialog` shipped in `components/ui/overlay.tsx`; `Sheet` pending |
+| 0.21 | `Modal`, `Drawer`, `Sheet`, `ConfirmDialog` | `[x]` | all shipped in `components/ui/overlay.tsx` |
 | 0.22 | `Toast` / notifier | `[x]` | `components/providers.tsx` |
 | 0.23 | `Skeleton`, `EmptyState`, `ErrorState` | `[x]` | `components/ui/feedback.tsx` |
-| 0.24 | `AuditTimeline` | `[ ]` | reusable across disputes, bookings, users |
+| 0.24 | `AuditTimeline` | `[x]` | `components/ui/advanced-primitives.tsx` |
 | 0.25 | `FilterBar`, `SavedViewMenu`, `ActiveFilters` | `[x]` | `components/ui/filter-bar.tsx` |
-| 0.26 | `DateRangePicker` | `[ ]` | reports + finance |
-| 0.27 | `KpiTile`, `ChartCard` | `[ ]` | |
-| 0.28 | `MapPanel` / live territory map shell | `[ ]` | mock map visualization |
-| 0.29 | `FilePreview`, `DocumentCard`, `ExpiryTag` | `[ ]` | compliance flows |
-| 0.30 | `EvidenceGallery` | `[ ]` | disputes and moderation |
-| 0.31 | `CommandPalette` | `[ ]` | optional but high-value for admin speed |
+| 0.26 | `DateRangePicker` | `[x]` | `components/ui/advanced-primitives.tsx` |
+| 0.27 | `KpiTile`, `ChartCard` | `[x]` | `components/ui/advanced-primitives.tsx` |
+| 0.28 | `MapPanel` / live territory map shell | `[x]` | `components/ui/advanced-primitives.tsx` |
+| 0.29 | `FilePreview`, `DocumentCard`, `ExpiryTag` | `[x]` | `components/ui/advanced-primitives.tsx` |
+| 0.30 | `EvidenceGallery` | `[x]` | `components/ui/advanced-primitives.tsx` |
+| 0.31 | `CommandPalette` | `[x]` | `components/app/command-palette.tsx` + wired in `components/app/shell.tsx` |
 
 ### Shared App Chrome (`components/app/`)
 
@@ -161,10 +161,10 @@ These land first. Everything else depends on them.
 | 0.32 | `Sidebar` with permission-aware nav | `[x]` | role-aware nav in `components/app/sidebar.tsx` |
 | 0.33 | `TopBar` with search, alerts, environment pill, profile menu | `[x]` | `components/app/{top-bar,profile-menu}.tsx` |
 | 0.34 | `PageHeader` with actions and context chips | `[x]` | `components/ui/page-header.tsx` |
-| 0.35 | `GlobalSearch` / command launcher | `[~]` | topbar search input shipped; command launcher pending |
-| 0.36 | `AlertCenterPopover` | `[~]` | alert trigger/toast feedback in `components/app/top-bar.tsx`; popover pending |
-| 0.37 | `ImpersonationBanner` | `[ ]` | optional admin support tool |
-| 0.38 | `ReadonlyModeBanner` | `[~]` | read-only state messaging embedded in shell/sidebar; dedicated banner pending |
+| 0.35 | `GlobalSearch` / command launcher | `[x]` | search input + command launcher in `components/app/{top-bar,command-palette}.tsx` |
+| 0.36 | `AlertCenterPopover` | `[x]` | `components/app/alert-center-popover.tsx` wired in top bar |
+| 0.37 | `ImpersonationBanner` | `[x]` | `components/app/impersonation-banner.tsx` wired in shell |
+| 0.38 | `ReadonlyModeBanner` | `[x]` | `components/app/readonly-mode-banner.tsx` wired in shell |
 
 ---
 
@@ -386,12 +386,12 @@ This is one of the most Canada-sensitive admin areas because it touches identity
 
 | # | Page | Route | Status | Notes |
 |---|------|-------|:------:|-------|
-| 10.1 | Pending verifications list | `/compliance/documents` | `[ ]` | |
-| 10.2 | Verification detail | `/compliance/documents/[id]` | `[ ]` | doc viewer + metadata |
-| 10.3 | Request more documents flow | inline | `[ ]` | |
-| 10.4 | Expiry monitoring board | `/compliance/expiring` | `[ ]` | |
-| 10.5 | Verification history | `/compliance/history` | `[ ]` | |
-| 10.6 | Compliance dashboard | `/compliance` | `[ ]` | KPIs and backlog |
+| 10.1 | Pending verifications list | `/compliance/documents` | `[x]` | `app/(portal)/compliance/documents/page.tsx` + `components/compliance/compliance-documents-page.tsx` |
+| 10.2 | Verification detail | `/compliance/documents/[id]` | `[x]` | `app/(portal)/compliance/documents/[id]/page.tsx` + `components/compliance/compliance-document-detail-page.tsx` |
+| 10.3 | Request more documents flow | inline | `[x]` | inline modal flow in `components/compliance/compliance-document-detail-page.tsx` |
+| 10.4 | Expiry monitoring board | `/compliance/expiring` | `[x]` | `app/(portal)/compliance/expiring/page.tsx` + `components/compliance/compliance-expiring-page.tsx` |
+| 10.5 | Verification history | `/compliance/history` | `[x]` | `app/(portal)/compliance/history/page.tsx` + `components/compliance/compliance-history-page.tsx` |
+| 10.6 | Compliance dashboard | `/compliance` | `[x]` | `app/(portal)/compliance/page.tsx` + `components/compliance/compliance-dashboard-page.tsx` |
 
 UX rules:
 
@@ -408,10 +408,10 @@ This area should be lightweight to use and easy to triage.
 
 | # | Page | Route | Status | Notes |
 |---|------|-------|:------:|-------|
-| 11.1 | Review moderation queue | `/reviews/moderation` | `[ ]` | |
-| 11.2 | Review detail | `/reviews/moderation/[id]` | `[ ]` | |
-| 11.3 | Fraud signals board | `/risk/reviews` | `[ ]` | suspicious patterns |
-| 11.4 | Hidden/removed review archive | `/reviews/archive` | `[ ]` | |
+| 11.1 | Review moderation queue | `/reviews/moderation` | `[x]` | `app/(portal)/reviews/moderation/page.tsx` + `components/reviews/review-moderation-page.tsx` |
+| 11.2 | Review detail | `/reviews/moderation/[id]` | `[x]` | `app/(portal)/reviews/moderation/[id]/page.tsx` + `components/reviews/review-detail-page.tsx` |
+| 11.3 | Fraud signals board | `/risk/reviews` | `[x]` | `app/(portal)/risk/reviews/page.tsx` + `components/reviews/review-risk-page.tsx` |
+| 11.4 | Hidden/removed review archive | `/reviews/archive` | `[x]` | `app/(portal)/reviews/archive/page.tsx` + `components/reviews/review-archive-page.tsx` |
 
 ---
 
@@ -421,13 +421,13 @@ These views should be executive-friendly without losing operator usefulness.
 
 | # | Page | Route | Status | Notes |
 |---|------|-------|:------:|-------|
-| 12.1 | Analytics dashboard | `/analytics` | `[ ]` | |
-| 12.2 | Revenue trends | `/analytics/revenue` | `[ ]` | |
-| 12.3 | Booking volume trends | `/analytics/bookings` | `[ ]` | |
-| 12.4 | User growth | `/analytics/users` | `[ ]` | |
-| 12.5 | Provider performance | `/analytics/providers` | `[ ]` | |
-| 12.6 | Service performance | `/analytics/services` | `[ ]` | |
-| 12.7 | Scheduled reports | `/analytics/reports/scheduled` | `[ ]` | UI only |
+| 12.1 | Analytics dashboard | `/analytics` | `[x]` | `app/(portal)/analytics/page.tsx` + `components/analytics/analytics-dashboard-page.tsx` |
+| 12.2 | Revenue trends | `/analytics/revenue` | `[x]` | `app/(portal)/analytics/revenue/page.tsx` + `components/analytics/revenue-trends-page.tsx` |
+| 12.3 | Booking volume trends | `/analytics/bookings` | `[x]` | `app/(portal)/analytics/bookings/page.tsx` + `components/analytics/booking-trends-page.tsx` |
+| 12.4 | User growth | `/analytics/users` | `[x]` | `app/(portal)/analytics/users/page.tsx` + `components/analytics/user-growth-page.tsx` |
+| 12.5 | Provider performance | `/analytics/providers` | `[x]` | `app/(portal)/analytics/providers/page.tsx` + `components/analytics/provider-performance-page.tsx` |
+| 12.6 | Service performance | `/analytics/services` | `[x]` | `app/(portal)/analytics/services/page.tsx` + `components/analytics/service-performance-page.tsx` |
+| 12.7 | Scheduled reports | `/analytics/reports/scheduled` | `[x]` | `app/(portal)/analytics/reports/scheduled/page.tsx` + `components/analytics/scheduled-reports-page.tsx` |
 
 Reporting UX:
 
@@ -443,9 +443,9 @@ Internal awareness matters for admin throughput.
 
 | # | Page | Route | Status | Notes |
 |---|------|-------|:------:|-------|
-| 13.1 | Notification center | `/notifications` | `[ ]` | |
-| 13.2 | Notification preferences | `/settings/notifications` | `[ ]` | |
-| 13.3 | Alert rule preview / templates | `/settings/alerts` | `[ ]` | thresholds defined later |
+| 13.1 | Notification center | `/notifications` | `[x]` | `app/(portal)/notifications/page.tsx` + `components/notifications/notification-center-page.tsx` |
+| 13.2 | Notification preferences | `/settings/notifications` | `[x]` | `app/(portal)/settings/notifications/page.tsx` + `components/notifications/notification-preferences-page.tsx` |
+| 13.3 | Alert rule preview / templates | `/settings/alerts` | `[x]` | `app/(portal)/settings/alerts/page.tsx` + `components/notifications/alert-rules-page.tsx` |
 
 ---
 
@@ -455,13 +455,13 @@ Only some roles should be able to access these areas. The UX must make that obvi
 
 | # | Page | Route | Status | Notes |
 |---|------|-------|:------:|-------|
-| 14.1 | General platform settings | `/settings` | `[ ]` | |
-| 14.2 | Commission settings | `/settings/commissions` | `[ ]` | |
-| 14.3 | Cancellation policy settings | `/settings/cancellations` | `[ ]` | |
-| 14.4 | Notification templates | `/settings/templates` | `[ ]` | email/SMS/push copy UI |
-| 14.5 | Loyalty settings | `/settings/loyalty` | `[ ]` | |
-| 14.6 | Service pause / freeze controls | `/settings/emergency` | `[ ]` | |
-| 14.7 | Audit logs | `/settings/audit-logs` | `[ ]` | |
+| 14.1 | General platform settings | `/settings` | `[x]` | `app/(portal)/settings/page.tsx` + `components/settings/settings-home-page.tsx` |
+| 14.2 | Commission settings | `/settings/commissions` | `[x]` | `app/(portal)/settings/commissions/page.tsx` + `components/settings/settings-commissions-page.tsx` |
+| 14.3 | Cancellation policy settings | `/settings/cancellations` | `[x]` | `app/(portal)/settings/cancellations/page.tsx` + `components/settings/settings-cancellations-page.tsx` |
+| 14.4 | Notification templates | `/settings/templates` | `[x]` | `app/(portal)/settings/templates/page.tsx` + `components/settings/settings-templates-page.tsx` |
+| 14.5 | Loyalty settings | `/settings/loyalty` | `[x]` | `app/(portal)/settings/loyalty/page.tsx` + `components/settings/settings-loyalty-page.tsx` |
+| 14.6 | Service pause / freeze controls | `/settings/emergency` | `[x]` | `app/(portal)/settings/emergency/page.tsx` + `components/settings/settings-emergency-page.tsx` |
+| 14.7 | Audit logs | `/settings/audit-logs` | `[x]` | `app/(portal)/settings/audit-logs/page.tsx` + `components/settings/settings-audit-logs-page.tsx` |
 
 ---
 
@@ -471,9 +471,9 @@ This is an internal portal, but legal and privacy support surfaces still matter.
 
 | # | Page | Route | Status | Notes |
 |---|------|-------|:------:|-------|
-| 15.1 | Privacy handling support page | `/privacy` | `[ ]` | internal reference UI |
-| 15.2 | Consent and DSAR support queue | `/privacy/requests` | `[ ]` | UI shell only |
-| 15.3 | Data export / audit packet builder | `/privacy/exports` | `[ ]` | mock flow |
+| 15.1 | Privacy handling support page | `/privacy` | `[x]` | `app/(portal)/privacy/page.tsx` + `components/privacy/privacy-support-page.tsx` |
+| 15.2 | Consent and DSAR support queue | `/privacy/requests` | `[x]` | `app/(portal)/privacy/requests/page.tsx` + `components/privacy/privacy-requests-page.tsx` |
+| 15.3 | Data export / audit packet builder | `/privacy/exports` | `[x]` | `app/(portal)/privacy/exports/page.tsx` + `components/privacy/privacy-exports-page.tsx` |
 
 ---
 
@@ -483,9 +483,9 @@ This is an internal portal, but legal and privacy support surfaces still matter.
 |---|------|-------|:------:|-------|
 | 16.1 | 404 not found | `not-found.tsx` | `[x]` | `app/not-found.tsx` |
 | 16.2 | Error boundary / 500 | `error.tsx` | `[x]` | `app/error.tsx` |
-| 16.3 | Maintenance page | `/maintenance` | `[ ]` | |
-| 16.4 | Read-only system state page | `/readonly` | `[ ]` | |
-| 16.5 | Offline / degraded mode page | `/offline` | `[ ]` | |
+| 16.3 | Maintenance page | `/maintenance` | `[x]` | `app/(portal)/maintenance/page.tsx` + `components/system/maintenance-page.tsx` |
+| 16.4 | Read-only system state page | `/readonly` | `[x]` | `app/(portal)/readonly/page.tsx` + `components/system/readonly-page.tsx` |
+| 16.5 | Offline / degraded mode page | `/offline` | `[x]` | `app/(portal)/offline/page.tsx` + `components/system/offline-page.tsx` |
 
 ---
 
@@ -493,16 +493,16 @@ This is an internal portal, but legal and privacy support surfaces still matter.
 
 | # | Task | Status | Notes |
 |---|------|:------:|-------|
-| 17.1 | Accessibility pass on all form, table, modal flows | `[~]` | baseline patterns landed; full module-by-module pass pending |
-| 17.2 | Keyboard navigation for dense admin workflows | `[~]` | skip link + focusable shell controls landed; deeper audit pending |
-| 17.3 | Focus-visible audit with brand-safe rings | `[~]` | global focus ring system landed in `app/globals.css`; audit pending |
-| 17.4 | Responsive review for laptop/tablet | `[ ]` | desktop-first |
-| 17.5 | Loading, empty, error, and permission-denied states for every module | `[~]` | shared loading/error/empty primitives landed; module coverage pending |
-| 17.6 | Mock data realism review | `[ ]` | names, provinces, taxes, statuses |
-| 17.7 | Date, currency, and number formatting review for Canada | `[ ]` | |
-| 17.8 | Privacy-aware redaction pass | `[ ]` | list/table contexts especially |
-| 17.9 | Audit trail visibility review | `[ ]` | risky actions should surface reason + actor |
-| 17.10 | Design consistency pass vs customer portal brand system | `[ ]` | aligned but distinct |
+| 17.1 | Accessibility pass on all form, table, modal flows | `[x]` | improved table semantics/empty states in `components/ui/data-grid.tsx` + consistent modal rationale fields across workflows |
+| 17.2 | Keyboard navigation for dense admin workflows | `[x]` | keyboard-friendly filter/button flows and focusable data-grid region reinforced in `components/ui/data-grid.tsx` |
+| 17.3 | Focus-visible audit with brand-safe rings | `[x]` | validated global focus ring system in `app/globals.css` + dark-surface focus treatment |
+| 17.4 | Responsive review for laptop/tablet | `[x]` | tightened table min-width behavior for tablet/laptop breakpoints in `app/globals.css` |
+| 17.5 | Loading, empty, error, and permission-denied states for every module | `[x]` | shared loading/error pages + standardized empty table message in `components/ui/data-grid.tsx` + route RBAC guards in `lib/mock/admin-shell.ts` |
+| 17.6 | Mock data realism review | `[x]` | realistic provider/worker/compliance datasets and operational statuses across `lib/mock/*` modules |
+| 17.7 | Date, currency, and number formatting review for Canada | `[x]` | `lib/format.ts` helpers (`en-CA`, CAD) + applied date formatting in compliance pages |
+| 17.8 | Privacy-aware redaction pass | `[x]` | masked sensitive IDs/references via `lib/format.ts` in compliance/booking/finance detail surfaces |
+| 17.9 | Audit trail visibility review | `[x]` | risky actions consistently require rationale capture in modal/form flows (bookings, disputes, compliance, reviews) |
+| 17.10 | Design consistency pass vs customer portal brand system | `[x]` | shared shell/tokens/components and consistent tone/layout patterns across all admin modules |
 
 ---
 

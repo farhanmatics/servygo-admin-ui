@@ -281,6 +281,7 @@ button {
 .compact-table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 740px;
 }
 
 .compact-table th {
@@ -352,6 +353,10 @@ button {
 
   .admin-main {
     padding: 0.85rem;
+  }
+
+  .compact-table {
+    min-width: 660px;
   }
 }
 
