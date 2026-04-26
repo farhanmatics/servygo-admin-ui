@@ -244,6 +244,10 @@ export const routePermissions: { pattern: string; roles: AdminRole[] }[] = [
     roles: ["super-admin", "operations-admin", "compliance-admin", "support-admin", "read-only-admin"],
   },
   {
+    pattern: "/bookings",
+    roles: ["super-admin", "operations-admin", "support-admin", "read-only-admin"],
+  },
+  {
     pattern: "/users",
     roles: ["super-admin", "operations-admin", "compliance-admin", "support-admin", "read-only-admin"],
   },
@@ -262,6 +266,18 @@ export const routePermissions: { pattern: string; roles: AdminRole[] }[] = [
   {
     pattern: "/services",
     roles: ["super-admin", "operations-admin", "read-only-admin"],
+  },
+  {
+    pattern: "/operations",
+    roles: ["super-admin", "operations-admin", "read-only-admin"],
+  },
+  {
+    pattern: "/finance",
+    roles: ["super-admin", "finance-admin", "read-only-admin"],
+  },
+  {
+    pattern: "/disputes",
+    roles: ["super-admin", "operations-admin", "support-admin", "read-only-admin"],
   },
 ];
 
