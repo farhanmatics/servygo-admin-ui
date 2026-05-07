@@ -32,7 +32,7 @@ type AuthContextValue = {
 type Toast = {
   id: number;
   message: string;
-  tone: "default" | "success" | "warning" | "danger";
+  tone: "default" | "info" | "success" | "warning" | "danger";
 };
 
 type ToastContextValue = {
@@ -52,7 +52,7 @@ function ToastViewport({ toasts }: { toasts: Toast[] }) {
             toast.tone === "success" ? "border-success/25" : "",
             toast.tone === "warning" ? "border-warning/25" : "",
             toast.tone === "danger" ? "border-danger/25" : "",
-            toast.tone === "default" ? "border-line" : "",
+            toast.tone === "default" || toast.tone === "info" ? "border-line" : "",
           ].join(" ")}
           key={toast.id}
         >
@@ -68,6 +68,7 @@ function ToastViewport({ toasts }: { toasts: Toast[] }) {
 
 function adminToneLabel(tone: Toast["tone"]) {
   if (tone === "success") return "Saved";
+  if (tone === "info") return "Info";
   if (tone === "warning") return "Attention";
   if (tone === "danger") return "Action blocked";
   return "Notice";

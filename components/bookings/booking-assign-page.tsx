@@ -52,7 +52,7 @@ export function BookingAssignPage({ booking }: { booking: BookingProfile }) {
         <Button
           onClick={() =>
             pushToast({
-              tone: "info",
+              tone: "default",
               message: "Dispatch comparison drawer will be added with API data.",
             })
           }

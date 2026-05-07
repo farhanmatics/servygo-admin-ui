@@ -4,10 +4,12 @@ import { Button } from "./button";
 export function Modal({
   actions,
   children,
+  onClose,
   title,
 }: {
   actions?: ReactNode;
   children: ReactNode;
+  onClose?: () => void;
   title: string;
 }) {
   return (
@@ -17,7 +19,14 @@ export function Modal({
           <div className="eyebrow">Modal</div>
           <h3 className="mt-2 text-[1.2rem] leading-none">{title}</h3>
         </div>
-        {actions}
+        <div className="flex gap-2">
+          {actions}
+          {onClose && (
+            <Button onClick={onClose} size="sm" variant="ghost">
+              Close
+            </Button>
+          )}
+        </div>
       </div>
       <div className="mt-4">{children}</div>
     </div>
