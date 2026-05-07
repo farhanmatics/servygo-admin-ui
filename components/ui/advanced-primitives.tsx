@@ -53,11 +53,12 @@ export function DateRangePicker({
   );
 }
 
-export function KpiTile({ label, value }: { label: string; value: string }) {
+export function KpiTile({ delta, label, value }: { delta?: string; label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-line bg-panel-muted p-3">
       <div className="eyebrow">{label}</div>
       <p className="mt-2 text-[1rem] font-semibold text-ink">{value}</p>
+      {delta ? <p className="mt-1 text-[11px] text-stone">{delta}</p> : null}
     </div>
   );
 }

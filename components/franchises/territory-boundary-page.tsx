@@ -28,9 +28,13 @@ export function TerritoryBoundaryPage({ id }: { id: string }) {
         title="Territory Boundary"
       />
 
-      <MapPanel title={`${territory.name} — territory boundary`}>
-        <p className="text-[13px] text-stone">Live geo-boundary overlay renders via Google Maps Platform in production. The territory boundary polygon and provider location pins are streamed from the backend.</p>
-      </MapPanel>
+      <MapPanel
+        items={[
+          `${territory.name} — territory boundary`,
+          "Live geo-boundary overlay renders via Google Maps Platform in production.",
+          "Territory boundary polygons and provider location pins are streamed from the backend.",
+        ]}
+      />
 
       <Card>
         <p className="eyebrow mb-3">Boundary details</p>

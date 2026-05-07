@@ -71,10 +71,10 @@ export function DisputeAppealPage({ id }: { id: string }) {
         <div className="space-y-2">
           <div className="flex gap-3">
             <StatusBadge tone="neutral">{dispute.status}</StatusBadge>
-            <span className="text-[13px] text-stone">Filed: {dispute.filed}</span>
+            <span className="text-[13px] text-stone">Filed: {dispute.createdAt}</span>
             <span className="text-[13px] text-stone">Priority: {dispute.priority}</span>
           </div>
-          <p className="text-[13px] text-body">{dispute.summary}</p>
+          <p className="text-[13px] text-body">{dispute.reason}</p>
           <div className="grid grid-cols-2 gap-3 text-[12px] text-stone">
             <span>Customer: <span className="text-ink">{dispute.customer}</span></span>
             <span>Provider: <span className="text-ink">{dispute.provider}</span></span>
